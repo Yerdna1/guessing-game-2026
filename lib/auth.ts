@@ -26,21 +26,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { email },
         })
 
-        // Demo mode: Auto-create user if doesn't exist
+        // Demo mode: Auto-create user if doesn't exist (removed for email verification)
         if (!user) {
-          // Extract name from email (e.g., john@example.com -> John)
-          const name = email.split('@')[0]
-            .split('.')
-            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-            .join(' ')
+          return null
+        }
 
-          user = await prisma.user.create({
-            data: {
-              email,
-              name,
-              role: UserRole.USER,
-            },
-          })
+        // Check if email is verified for password users
+        if (user.passwordHash && !user.emailVerified) {
+          return null
         }
 
         // Verify password if user has a password hash

@@ -46,38 +46,180 @@ export async function registerUser(formData: FormData) {
   const password = formData.get('password') as string
   const country = formData.get('country') as string
 
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    redirect('/register?error=Invalid email format')
+  }
+
   // Check if user already exists
   const existing = await (prisma.user as any).findUnique({
     where: { email },
-    select: { id: true, passwordHash: true },
+    select: { id: true, passwordHash: true, emailVerified: true },
   })
 
-  if (!existing) {
-    // Hash the password
-    const passwordHash = await bcrypt.hash(password, 10)
+  if (existing) {
+    // If user exists but email not verified, create new token
+    if (!existing.emailVerified) {
+      const verificationToken = createHash('sha256')
+        .update(randomBytes(32).toString('base64'))
+        .digest('base64')
+        .replace(/[/+=]/g, '')
+        .substring(0, 48)
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
-    // Create new user with provided details using unchecked create for passwordHash
-    await (prisma.user as any).create({
-      data: {
-        name,
-        email,
-        country: country || null,
-        passwordHash,
-      },
-    })
-  } else {
-    // Update existing user's password if they don't have one
-    if (!existing.passwordHash) {
-      const passwordHash = await bcrypt.hash(password, 10)
-      await (prisma.user as any).update({
-        where: { id: existing.id },
-        data: { passwordHash }
+      // Store verification token
+      await prisma.verificationToken.create({
+        data: {
+          identifier: email,
+          token: verificationToken,
+          expires: expiresAt,
+        },
       })
+
+      // Redirect to verification page with token (for demo purposes)
+      redirect(`/register?verification-sent=true&token=${verificationToken}`)
     }
+
+    // User exists and is verified, redirect to login
+    redirect('/login?error=Email already registered')
   }
 
-  // Sign in with email and password
-  await signIn('credentials', { email, password, redirectTo: '/dashboard' })
+  // Hash the password
+  const passwordHash = await bcrypt.hash(password, 10)
+
+  // Create new user with provided details using unchecked create for passwordHash
+  await (prisma.user as any).create({
+    data: {
+      name,
+      email,
+      country: country || null,
+      passwordHash,
+      emailVerified: null, // Not verified yet
+    },
+  })
+
+  // Generate verification token
+  const verificationToken = createHash('sha256')
+    .update(randomBytes(32).toString('base64'))
+    .digest('base64')
+    .replace(/[/+=]/g, '')
+    .substring(0, 48)
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+  // Store verification token
+  await prisma.verificationToken.create({
+    data: {
+      identifier: email,
+      token: verificationToken,
+      expires: expiresAt,
+    },
+  })
+
+  // Redirect to verification page with token (for demo purposes, in production send email)
+  redirect(`/register?verification-sent=true&token=${verificationToken}`)
+}
+
+export async function verifyEmail(formData: FormData) {
+  const token = formData.get('token') as string
+
+  if (!token) {
+    redirect('/register?error=Invalid verification link')
+  }
+
+  // Find the verification token
+  const verificationToken = await prisma.verificationToken.findUnique({
+    where: { token },
+  })
+
+  if (!verificationToken) {
+    redirect('/register?error=Invalid or expired verification link')
+  }
+
+  // Check if token is expired
+  if (verificationToken.expires < new Date()) {
+    // Delete expired token
+    await prisma.verificationToken.delete({
+      where: { token },
+    })
+    redirect('/register?error=Verification link has expired')
+  }
+
+  // Find user by email
+  const user = await prisma.user.findUnique({
+    where: { email: verificationToken.identifier },
+  })
+
+  if (!user) {
+    redirect('/register?error=User not found')
+  }
+
+  // Mark email as verified
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { emailVerified: new Date() },
+  })
+
+  // Delete the used token
+  await prisma.verificationToken.delete({
+    where: { token },
+  })
+
+  // Redirect to login with success message
+  redirect('/login?verified=true')
+}
+
+export async function resendVerificationEmail(formData: FormData) {
+  const email = formData.get('email') as string
+
+  if (!email) {
+    redirect('/register?error=Email is required')
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    redirect('/register?error=Invalid email format')
+  }
+
+  // Find user
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, emailVerified: true },
+  })
+
+  if (!user) {
+    redirect('/register?error=User not found')
+  }
+
+  if (user.emailVerified) {
+    redirect('/login?error=Email already verified')
+  }
+
+  // Generate new verification token
+  const verificationToken = createHash('sha256')
+    .update(randomBytes(32).toString('base64'))
+    .digest('base64')
+    .replace(/[/+=]/g, '')
+    .substring(0, 48)
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+  // Delete any existing tokens for this email
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: email },
+  })
+
+  // Store new verification token
+  await prisma.verificationToken.create({
+    data: {
+      identifier: email,
+      token: verificationToken,
+      expires: expiresAt,
+    },
+  })
+
+  // Redirect to verification page with new token (for demo purposes)
+  redirect(`/register?verification-sent=true&token=${verificationToken}`)
 }
 
 export async function recalculateRankingsAction(): Promise<void> {
