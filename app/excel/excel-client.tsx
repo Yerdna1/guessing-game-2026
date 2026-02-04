@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { useToast } from '@/hooks/use-toast'
-import { Save, Loader2, Upload, FileSpreadsheet, CheckCircle, AlertCircle } from 'lucide-react'
+import { Loader2, Upload, FileSpreadsheet, CheckCircle, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface Team {
@@ -29,6 +29,11 @@ interface User {
   name: string
   email: string
   country: string
+  filledMatches?: number
+  totalPoints?: number
+  groupStagePoints?: number
+  playoffPoints?: number
+  accurateGuesses?: number
 }
 
 interface Guess {
@@ -45,18 +50,9 @@ interface ExcelGridData {
   guesses: Map<string, Guess>
 }
 
-interface EditingCell {
-  userId: string
-  matchId: string
-  homeScore: string
-  awayScore: string
-}
-
 export default function ExcelClient() {
   const [data, setData] = useState<ExcelGridData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [editingCells, setEditingCells] = useState<Map<string, EditingCell>>(new Map())
   const [isUploading, setIsUploading] = useState(false)
   const [uploadResult, setUploadResult] = useState<{
     success: boolean
@@ -69,11 +65,18 @@ export default function ExcelClient() {
     guessesUpdated: number
     error?: string
   } | null>(null)
+  const [sortBy, setSortBy] = useState('totalPoints')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const { toast } = useToast()
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch('/api/excel')
+      const params = new URLSearchParams({
+        sortBy,
+        sortOrder
+      })
+
+      const response = await fetch(`/api/excel?${params.toString()}`)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -106,118 +109,11 @@ export default function ExcelClient() {
     } finally {
       setLoading(false)
     }
-  }, [toast])
+  }, [sortBy, sortOrder, toast])
 
   useEffect(() => {
     fetchData()
   }, [fetchData])
-
-  const saveGuess = async (userId: string, matchId: string, homeScore: number, awayScore: number) => {
-    try {
-      const response = await fetch('/api/excel/save-guess', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId, matchId, homeScore, awayScore }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (result.error) {
-        throw new Error(result.error)
-      }
-
-      // Update local state
-      const key = `${userId}_${matchId}`
-      const newGuess: Guess = {
-        userId,
-        matchId,
-        homeScore,
-        awayScore,
-        points: result.guess?.points
-      }
-
-      setData(prev => {
-        if (!prev) return prev
-        const newGuesses = new Map(prev.guesses)
-        newGuesses.set(key, newGuess)
-        return { ...prev, guesses: newGuesses }
-      })
-
-      // Clear editing state for this cell
-      setEditingCells(prev => {
-        const newMap = new Map(prev)
-        newMap.delete(key)
-        return newMap
-      })
-
-      // Show success feedback
-      toast({
-        title: 'Success',
-        description: 'Guess saved successfully'
-      })
-
-      return true
-    } catch (error) {
-      console.error('Error saving guess:', error)
-      toast({
-        title: 'Error',
-        description: 'Failed to save guess: ' + (error instanceof Error ? error.message : 'Unknown error')
-      })
-      return false
-    }
-  }
-
-  const handleCellChange = (userId: string, matchId: string, field: 'homeScore' | 'awayScore', value: string) => {
-    const key = `${userId}_${matchId}`
-
-    const existingGuess = data?.guesses.get(key)
-    const currentEditing = editingCells.get(key)
-
-    const homeScore = field === 'homeScore' ? value : (currentEditing?.homeScore ?? existingGuess?.homeScore.toString() ?? '')
-    const awayScore = field === 'awayScore' ? value : (currentEditing?.awayScore ?? existingGuess?.awayScore.toString() ?? '')
-
-    setEditingCells(prev => {
-      const newMap = new Map(prev)
-      newMap.set(key, { userId, matchId, homeScore, awayScore })
-      return newMap
-    })
-  }
-
-  const handleBlur = async (userId: string, matchId: string) => {
-    const key = `${userId}_${matchId}`
-    const editing = editingCells.get(key)
-
-    if (!editing) return
-
-    const homeScore = parseInt(editing.homeScore)
-    const awayScore = parseInt(editing.awayScore)
-
-    // Only save if both values are valid numbers
-    if (!isNaN(homeScore) && !isNaN(awayScore) && editing.homeScore.trim() !== '' && editing.awayScore.trim() !== '') {
-      setSaving(true)
-      await saveGuess(userId, matchId, homeScore, awayScore)
-      setSaving(false)
-    } else {
-      // Clear editing state if invalid
-      setEditingCells(prev => {
-        const newMap = new Map(prev)
-        newMap.delete(key)
-        return newMap
-      })
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, userId: string, matchId: string) => {
-    if (e.key === 'Enter') {
-      e.currentTarget.blur()
-    }
-  }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -390,14 +286,8 @@ export default function ExcelClient() {
             IBM & OLYMPIC GAMES 2026 Guessing Game
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            Click on any prediction cell to edit. Press Enter or click away to save.
+            Read-only view. Click column headers to sort by different criteria.
           </p>
-          {saving && (
-            <div className="mt-2 flex items-center justify-center gap-2 text-emerald-600 dark:text-emerald-400">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-sm font-medium">Saving changes...</span>
-            </div>
-          )}
         </div>
 
         {/* Rules Section */}
@@ -605,20 +495,100 @@ export default function ExcelClient() {
                 <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '100px' }}>
                   Country
                 </th>
-                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '80px' }}>
-                  Filled matches
+                <th
+                  className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold cursor-pointer hover:bg-emerald-300 dark:hover:bg-emerald-700 transition-colors select-none"
+                  style={{ width: '80px' }}
+                  onClick={() => {
+                    if (sortBy === 'filledMatches') {
+                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                    } else {
+                      setSortBy('filledMatches')
+                      setSortOrder('desc')
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    Filled matches
+                    {sortBy === 'filledMatches' && (
+                      <span className="text-xs">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
                 </th>
-                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '80px' }}>
-                  Accurate guesses
+                <th
+                  className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold cursor-pointer hover:bg-emerald-300 dark:hover:bg-emerald-700 transition-colors select-none"
+                  style={{ width: '80px' }}
+                  onClick={() => {
+                    if (sortBy === 'accurateGuesses') {
+                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                    } else {
+                      setSortBy('accurateGuesses')
+                      setSortOrder('desc')
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    Accurate guesses
+                    {sortBy === 'accurateGuesses' && (
+                      <span className="text-xs">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
                 </th>
-                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '100px' }}>
-                  Group-stage Points
+                <th
+                  className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold cursor-pointer hover:bg-emerald-300 dark:hover:bg-emerald-700 transition-colors select-none"
+                  style={{ width: '100px' }}
+                  onClick={() => {
+                    if (sortBy === 'groupStagePoints') {
+                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                    } else {
+                      setSortBy('groupStagePoints')
+                      setSortOrder('desc')
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    Group-stage Points
+                    {sortBy === 'groupStagePoints' && (
+                      <span className="text-xs">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
                 </th>
-                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '100px' }}>
-                  Play-off Points
+                <th
+                  className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold cursor-pointer hover:bg-emerald-300 dark:hover:bg-emerald-700 transition-colors select-none"
+                  style={{ width: '100px' }}
+                  onClick={() => {
+                    if (sortBy === 'playoffPoints') {
+                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                    } else {
+                      setSortBy('playoffPoints')
+                      setSortOrder('desc')
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    Play-off Points
+                    {sortBy === 'playoffPoints' && (
+                      <span className="text-xs">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
                 </th>
-                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '80px' }}>
-                  Total Points
+                <th
+                  className="border-2 border-emerald-400 dark:border-emerald-600 bg-gradient-to-r from-amber-400 to-orange-500 text-white p-2 text-center font-bold cursor-pointer hover:from-amber-500 hover:to-orange-600 transition-all select-none shadow-md"
+                  style={{ width: '80px' }}
+                  onClick={() => {
+                    if (sortBy === 'totalPoints') {
+                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                    } else {
+                      setSortBy('totalPoints')
+                      setSortOrder('desc')
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    Total Points
+                    {sortBy === 'totalPoints' && (
+                      <span className="text-xs">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
                 </th>
                 <th colSpan={matchColumns.length} className="border-2 border-emerald-400 dark:border-emerald-600 bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100 p-2 text-center font-bold" style={{ fontSize: '12px' }}>
                   Results:
@@ -628,10 +598,6 @@ export default function ExcelClient() {
 
             <tbody>
               {data.users.map((user, userIndex) => {
-                const filledMatches = data.matches.filter(m =>
-                  data.guesses.has(`${user.id}_${m.id}`)
-                ).length
-
                 return (
                   <tr key={user.id} className={userIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-750'}>
                     {/* Fixed Columns */}
@@ -648,55 +614,39 @@ export default function ExcelClient() {
                       {user.country}
                     </td>
                     <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
-                      {filledMatches}
+                      {user.filledMatches ?? 0}
                     </td>
                     <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
-                      0
+                      {user.accurateGuesses ?? 0}
                     </td>
                     <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
-                      0
+                      {user.groupStagePoints ?? 0}
                     </td>
                     <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
-                      0
+                      {user.playoffPoints ?? 0}
                     </td>
-                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center font-bold text-gray-900 dark:text-gray-100">
-                      0
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center font-bold text-emerald-700 dark:text-emerald-400 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50">
+                      {user.totalPoints ?? 0}
                     </td>
 
-                    {/* Match Predictions and Points */}
+                    {/* Match Predictions - Read Only Display */}
                     {matchColumns.map((match, idx) => {
                       const key = `${user.id}_${match.id}`
                       const guess = data.guesses.get(key)
-                      const editing = editingCells.get(key)
 
-                      const displayHome = editing?.homeScore ?? guess?.homeScore.toString() ?? ''
-                      const displayAway = editing?.awayScore ?? guess?.awayScore.toString() ?? ''
-                      const isEditing = editing !== undefined
+                      const displayHome = guess?.homeScore ?? '-'
+                      const displayAway = guess?.awayScore ?? '-'
 
                       return (
-                        <td key={match.id} className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${isEditing ? 'bg-yellow-50 dark:bg-yellow-900/20' : getPointsColor(guess?.points)}`} style={{ minWidth: '150px', width: '150px', whiteSpace: 'nowrap' }}>
+                        <td key={match.id} className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${getPointsColor(guess?.points)}`} style={{ minWidth: '150px', width: '150px', whiteSpace: 'nowrap' }}>
                           <div className="flex items-center justify-center gap-1 whitespace-nowrap">
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              className="w-14 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                              value={displayHome}
-                              onChange={(e) => handleCellChange(user.id, match.id, 'homeScore', e.target.value)}
-                              onBlur={() => handleBlur(user.id, match.id)}
-                              onKeyDown={(e) => handleKeyDown(e, user.id, match.id)}
-                              placeholder="-"
-                            />
+                            <span className="w-14 text-center font-mono font-bold text-blue-700 dark:text-blue-300">
+                              {displayHome}
+                            </span>
                             <span className="font-mono font-bold text-blue-700 dark:text-blue-300">:</span>
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              className="w-14 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                              value={displayAway}
-                              onChange={(e) => handleCellChange(user.id, match.id, 'awayScore', e.target.value)}
-                              onBlur={() => handleBlur(user.id, match.id)}
-                              onKeyDown={(e) => handleKeyDown(e, user.id, match.id)}
-                              placeholder="-"
-                            />
+                            <span className="w-14 text-center font-mono font-bold text-blue-700 dark:text-blue-300">
+                              {displayAway}
+                            </span>
                           </div>
                         </td>
                       )

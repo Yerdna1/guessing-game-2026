@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { revalidatePath } from 'next/cache'
 
 // Public endpoint for Excel view admin editing
 export async function POST(request: Request) {
@@ -70,6 +71,9 @@ export async function POST(request: Request) {
     })
 
     console.log('Guess saved:', guess)
+
+    // Revalidate pages to show updated data
+    revalidatePath('/excel')
 
     return NextResponse.json({
       success: true,

@@ -272,6 +272,7 @@ export async function updateMatchResult(formData: FormData) {
   revalidatePath('/standings')
   revalidatePath('/dashboard')
   revalidatePath('/matches')
+  revalidatePath('/excel')
 }
 
 export async function updateRules(formData: FormData) {
