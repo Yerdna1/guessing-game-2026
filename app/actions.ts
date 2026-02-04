@@ -218,7 +218,7 @@ export async function resetPassword(formData: FormData) {
   const passwordHash = await bcrypt.hash(newPassword, 10)
 
   // Update user password
-  await prisma.user.update({
+  await (prisma.user as any).update({
     where: { id: user.id },
     data: { passwordHash },
   })
