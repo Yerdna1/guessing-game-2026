@@ -63,7 +63,7 @@ export function Footer() {
             <h4 className="font-bold text-slate-900 dark:text-slate-100 mb-4">Tournament</h4>
             <ul className="space-y-2">
               <li className="text-sm text-slate-600 dark:text-slate-400">
-                <span className="font-medium">13 National Teams</span>
+                <span className="font-medium">12 National Teams</span>
               </li>
               <li className="text-sm text-slate-600 dark:text-slate-400">
                 <span className="font-medium">30+ Matches</span>
