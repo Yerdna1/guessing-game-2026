@@ -337,13 +337,13 @@ export default function ExcelClient() {
                   Matches
                 </th>
                 {matchColumns.map((match, idx) => (
-                  <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ minWidth: '45px' }}>
+                  <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ minWidth: '100px' }}>
                     {match.homeTeam.code}
                   </th>
                 ))}
                 {/* Empty Points columns */}
                 {matchColumns.map((_, idx) => (
-                  <th key={`pts-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ minWidth: '55px' }}>
+                  <th key={`pts-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ minWidth: '60px' }}>
                     Points
                   </th>
                 ))}
@@ -459,12 +459,12 @@ export default function ExcelClient() {
 
                       return (
                         <React.Fragment key={match.id}>
-                          <td className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${isEditing ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`} style={{ minWidth: '45px' }}>
+                          <td className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${isEditing ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`} style={{ minWidth: '100px' }}>
                             <div className="flex items-center justify-center gap-1">
                               <input
                                 type="text"
                                 inputMode="numeric"
-                                className="w-8 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                className="w-12 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                 value={displayHome}
                                 onChange={(e) => handleCellChange(user.id, match.id, 'homeScore', e.target.value)}
                                 onBlur={() => handleBlur(user.id, match.id)}
@@ -475,7 +475,7 @@ export default function ExcelClient() {
                               <input
                                 type="text"
                                 inputMode="numeric"
-                                className="w-8 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                className="w-12 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                 value={displayAway}
                                 onChange={(e) => handleCellChange(user.id, match.id, 'awayScore', e.target.value)}
                                 onBlur={() => handleBlur(user.id, match.id)}
@@ -484,7 +484,7 @@ export default function ExcelClient() {
                               />
                             </div>
                           </td>
-                          <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100" style={{ minWidth: '55px' }}>
+                          <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100" style={{ minWidth: '60px' }}>
                             {/* Points column - would show points earned */}
                             {guess && guess.points ? guess.points : '-'}
                           </td>
