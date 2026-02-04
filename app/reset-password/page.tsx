@@ -7,13 +7,14 @@ import Link from 'next/link'
 import { resetPassword } from '@/app/actions'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
+import { use } from 'react'
 
 export default function ResetPasswordPage({
   searchParams,
 }: {
-  searchParams: { token?: string }
+  searchParams: Promise<{ token?: string }>
 }) {
-  const token = searchParams.token
+  const { token } = use(searchParams)
 
   if (!token) {
     return (

@@ -7,15 +7,14 @@ import Link from 'next/link'
 import { forgotPassword } from '@/app/actions'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
+import { use } from 'react'
 
 export default function ForgotPasswordPage({
   searchParams,
 }: {
-  searchParams: { 'link-sent'?: string; token?: string; oauth?: string }
+  searchParams: Promise<{ 'link-sent'?: string; token?: string; oauth?: string }>
 }) {
-  const linkSent = searchParams['link-sent']
-  const resetToken = searchParams.token
-  const isOAuth = searchParams.oauth
+  const { 'link-sent': linkSent, token: resetToken, oauth: isOAuth } = use(searchParams)
 
   return (
     <div className="flex min-h-screen flex-col">

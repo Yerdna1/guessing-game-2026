@@ -75,7 +75,7 @@ export function NavbarClient({ session }: NavbarClientProps) {
                     Matches
                   </Button>
                 </Link>
-                {session.user.role === 'ADMIN' && (
+                {session.user?.role === 'ADMIN' && (
                   <Link href="/admin">
                     <Button variant="ghost" size="sm" className="nav-link">
                       <Settings className="h-4 w-4 mr-2" />
@@ -89,7 +89,7 @@ export function NavbarClient({ session }: NavbarClientProps) {
 
           {/* Auth Section */}
           <div className="flex items-center gap-3">
-            {session ? (
+            {session?.user ? (
               <UserMenu user={session.user} />
             ) : (
               <div className="flex items-center gap-2">

@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Trophy, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { signInWithCredentials, signInWithGoogle, signInWithGitHub } from '@/app/actions'
+import { use } from 'react'
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -28,9 +29,9 @@ function GitHubIcon({ className }: { className?: string }) {
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: { 'reset-success'?: string }
+  searchParams: Promise<{ 'reset-success'?: string }>
 }) {
-  const resetSuccess = searchParams['reset-success']
+  const { 'reset-success': resetSuccess } = use(searchParams)
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">

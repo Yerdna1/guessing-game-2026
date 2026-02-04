@@ -18,26 +18,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email) {
-          throw new Error('Email is required')
+          return null
         }
 
+        const email = credentials.email as string
         let user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email },
         })
 
         // Demo mode: Auto-create user if doesn't exist
         if (!user) {
           // Extract name from email (e.g., john@example.com -> John)
-          const emailName = credentials.email as string
-          const name = emailName.split('@')[0]
+          const name = email.split('@')[0]
             .split('.')
             .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
             .join(' ')
 
           user = await prisma.user.create({
             data: {
-              email: emailName,
-              name: name,
+              email,
+              name,
               role: UserRole.USER,
             },
           })
@@ -47,7 +47,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (user.passwordHash) {
           const isValid = await bcrypt.compare(credentials.password as string, user.passwordHash)
           if (!isValid) {
-            throw new Error('Invalid password')
+            return null
           }
         }
         // For backward compatibility, accept any password if no hash is set
@@ -72,11 +72,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
+      // Handle relative URLs
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`
+      }
       // Redirect to home page after sign out
       if (url === '/login' || url === `${baseUrl}/login`) {
         return baseUrl
       }
-      return url
+      // If url is already a full URL, return it
+      if (url.startsWith('http')) {
+        return url
+      }
+      return baseUrl
     },
     async jwt({ token, user, trigger, session }) {
       if (user) {
