@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState, useCallback } from 'react'
 import { useToast } from '@/hooks/use-toast'
-import { Save, Loader2 } from 'lucide-react'
+import { Save, Loader2, Upload, FileSpreadsheet, CheckCircle, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 interface Team {
   id: string
@@ -19,6 +20,7 @@ interface Match {
   venue: string
   stage: string
   isPlayoff: boolean
+  matchNumber?: number | null
 }
 
 interface User {
@@ -54,6 +56,18 @@ export default function ExcelClient() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [editingCells, setEditingCells] = useState<Map<string, EditingCell>>(new Map())
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadResult, setUploadResult] = useState<{
+    success: boolean
+    teamsCreated: number
+    matchesCreated: number
+    matchesUpdated: number
+    usersCreated: number
+    usersUpdated: number
+    guessesCreated: number
+    guessesUpdated: number
+    error?: string
+  } | null>(null)
   const { toast } = useToast()
 
   const fetchData = useCallback(async () => {
@@ -204,6 +218,88 @@ export default function ExcelClient() {
     }
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    setUploadResult(null)
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const response = await fetch('/api/excel/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setUploadResult({
+          success: true,
+          teamsCreated: result.data.teamsCreated,
+          matchesCreated: result.data.matchesCreated,
+          matchesUpdated: result.data.matchesUpdated,
+          usersCreated: result.data.usersCreated,
+          usersUpdated: result.data.usersUpdated,
+          guessesCreated: result.data.guessesCreated,
+          guessesUpdated: result.data.guessesUpdated
+        })
+
+        toast({
+          title: 'Import successful!',
+          description: `Data imported successfully. Refreshing...`
+        })
+
+        // Refresh data after a short delay to allow database to update
+        setTimeout(() => {
+          fetchData()
+        }, 500)
+      } else {
+        setUploadResult({
+          success: false,
+          teamsCreated: 0,
+          matchesCreated: 0,
+          matchesUpdated: 0,
+          usersCreated: 0,
+          usersUpdated: 0,
+          guessesCreated: 0,
+          guessesUpdated: 0,
+          error: result.error
+        })
+
+        toast({
+          title: 'Import failed',
+          description: result.error || 'An error occurred'
+        })
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      setUploadResult({
+        success: false,
+        teamsCreated: 0,
+        matchesCreated: 0,
+        matchesUpdated: 0,
+        usersCreated: 0,
+        usersUpdated: 0,
+        guessesCreated: 0,
+        guessesUpdated: 0,
+        error: errorMessage
+      })
+
+      toast({
+        title: 'Import failed',
+        description: errorMessage
+      })
+    } finally {
+      setIsUploading(false)
+      // Clear file input
+      e.target.value = ''
+    }
+  }
+
   // Group matches exactly as they appear in Excel
   const getExcelMatchColumns = () => {
     if (!data) return []
@@ -310,6 +406,92 @@ export default function ExcelClient() {
             If you guess exact score of match: <strong>4pts</strong>, if you guess the winner of match and number of goals scored by home or away team: <strong>2pts</strong>,
             if you guess just the winner: <strong>1pts</strong>. In PLAY OFF you receive <strong>+1 point</strong> for each mentioned scenario.
           </p>
+        </div>
+
+        {/* Upload Section */}
+        <div className="mb-4 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-1">
+                <FileSpreadsheet className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                  Import from Excel
+                </h3>
+              </div>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Upload an Excel file to update matches, teams, users, and predictions. New users will be created automatically with temporary passwords.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleFileUpload}
+                disabled={isUploading}
+                className="hidden"
+                id="excel-upload"
+              />
+              <label htmlFor="excel-upload">
+                <Button
+                  disabled={isUploading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+                  asChild
+                >
+                  <span className="cursor-pointer flex items-center gap-2">
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4" />
+                        Choose Excel File
+                      </>
+                    )}
+                  </span>
+                </Button>
+              </label>
+            </div>
+          </div>
+
+          {/* Results Display */}
+          {uploadResult && uploadResult.success && (
+            <div className="mt-4 p-4 bg-green-50 dark:bg-green-950 rounded-lg border-2 border-green-200 dark:border-green-800">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-bold text-green-900 dark:text-green-100 mb-2">✅ Import Successful</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-green-700 dark:text-green-300">
+                    <div><span className="font-semibold">Teams created:</span> {uploadResult.teamsCreated}</div>
+                    <div><span className="font-semibold">Matches created:</span> {uploadResult.matchesCreated}</div>
+                    <div><span className="font-semibold">Matches updated:</span> {uploadResult.matchesUpdated}</div>
+                    <div><span className="font-semibold">Users created:</span> {uploadResult.usersCreated}</div>
+                    <div><span className="font-semibold">Users updated:</span> {uploadResult.usersUpdated}</div>
+                    <div><span className="font-semibold">Guesses created:</span> {uploadResult.guessesCreated}</div>
+                    <div><span className="font-semibold">Guesses updated:</span> {uploadResult.guessesUpdated}</div>
+                  </div>
+                  {uploadResult.usersCreated > 0 && (
+                    <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded text-xs text-yellow-800 dark:text-yellow-200">
+                      ⚠️ {uploadResult.usersCreated} new user(s) created with temporary passwords. Check server logs for passwords.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {uploadResult && !uploadResult.success && (
+            <div className="mt-4 p-4 bg-red-50 dark:bg-red-950 rounded-lg border-2 border-red-200 dark:border-red-800">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-red-900 dark:text-red-100 mb-1">❌ Import Failed</h4>
+                  <p className="text-sm text-red-700 dark:text-red-300">{uploadResult.error}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Excel-style Table */}

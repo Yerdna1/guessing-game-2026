@@ -322,3 +322,62 @@ export async function updateRules(formData: FormData) {
   revalidatePath('/admin')
   revalidatePath('/rules')
 }
+
+export async function syncFromExcelUpload(formData: FormData) {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+
+  // Verify admin permissions
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return { success: false, error: 'Unauthorized - Admin access required' }
+  }
+
+  try {
+    // Get file from form data
+    const file = formData.get('file') as File
+    if (!file) {
+      return { success: false, error: 'No file provided' }
+    }
+
+    // Validate file type
+    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+      return { success: false, error: 'Invalid file type. Please upload an Excel file (.xlsx or .xls)' }
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      return { success: false, error: 'File too large. Maximum size is 10MB' }
+    }
+
+    // Read file buffer
+    const buffer = await file.arrayBuffer()
+
+    // Import syncExcelData function
+    const { syncExcelData } = await import('@/lib/sync-excel')
+
+    // Sync data
+    const result = await syncExcelData(buffer)
+
+    // Recalculate rankings after sync
+    if (result.success) {
+      const { recalculateRankings } = await import('@/lib/scoring')
+      await recalculateRankings('default')
+    }
+
+    // Revalidate all affected pages
+    revalidatePath('/excel')
+    revalidatePath('/dashboard')
+    revalidatePath('/matches')
+    revalidatePath('/admin')
+    revalidatePath('/standings')
+
+    return { success: true, data: result }
+
+  } catch (error) {
+    console.error('Excel sync error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'An error occurred while processing the Excel file'
+    }
+  }
+}
