@@ -7,10 +7,14 @@ import { auth } from './auth'
 export async function safeAuth() {
   try {
     return await auth()
-  } catch (error) {
+  } catch (error: any) {
     // JWT decryption errors happen when NEXTAUTH_SECRET changes
     // Return null session, user will need to sign in again
-    console.debug('Auth session error (likely old cookies):', error)
+    // Only log non-JWT errors
+    if (!error?.message?.includes('JWTSessionError') &&
+        !error?.message?.includes('no matching decryption secret')) {
+      console.debug('Auth session error:', error)
+    }
     return null
   }
 }

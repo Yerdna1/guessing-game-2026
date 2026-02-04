@@ -6,6 +6,77 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Users, Eye, TrendingUp } from 'lucide-react'
 
+type MatchWithRelations = {
+  id: string
+  tournamentId: string
+  homeTeamId: string
+  awayTeamId: string
+  scheduledTime: Date
+  venue: string | null
+  stage: string
+  status: string
+  homeScore: number | null
+  awayScore: number | null
+  isPlayoff: boolean
+  createdAt: Date
+  updatedAt: Date
+  homeTeam: {
+    id: string
+    code: string
+    name: string
+    flagUrl: string | null
+  }
+  awayTeam: {
+    id: string
+    code: string
+    name: string
+    flagUrl: string | null
+  }
+  guesses: {
+    id: string
+    userId: string
+    matchId: string
+    homeScore: number
+    awayScore: number
+    points: number
+    isCorrect: boolean
+    isWinner: boolean
+    isOneTeam: boolean
+    user: {
+      id: string
+      name: string | null
+      email: string
+      country: string | null
+    }
+  }[]
+}
+
+type UserWithGuessesAndRankings = {
+  id: string
+  name: string | null
+  email: string
+  country: string | null
+  guesses: { points: number }[]
+  rankings: {
+    id: string
+    tournamentId: string
+    userId: string
+    place: number | null
+    totalGuesses: number
+    accurateGuesses: number
+    groupStagePoints: number
+    playoffPoints: number
+    totalPoints: number
+    lastCalculated: Date
+  }[]
+}
+
+type UserWithStats = UserWithGuessesAndRankings & {
+  totalPoints: number
+  totalGuesses: number
+  accurateGuesses: number
+}
+
 export default async function PredictionsPage() {
   // Get all matches with all guesses
   const matches = await prisma.match.findMany({
@@ -32,7 +103,7 @@ export default async function PredictionsPage() {
     orderBy: {
       scheduledTime: 'asc',
     },
-  })
+  }) as MatchWithRelations[]
 
   // Get all users with their stats
   const users = await prisma.user.findMany({
@@ -52,19 +123,19 @@ export default async function PredictionsPage() {
         },
       },
     },
-  })
+  }) as UserWithGuessesAndRankings[]
 
   // Calculate user stats
-  const userStats = users.map((user) => ({
+  const userStats: UserWithStats[] = users.map((user: UserWithGuessesAndRankings) => ({
     ...user,
     totalPoints: user.rankings[0]?.totalPoints || 0,
     totalGuesses: user.guesses.length,
-    accurateGuesses: user.guesses.filter((g) => g.points > 0).length,
-  })).sort((a, b) => b.totalPoints - a.totalPoints)
+    accurateGuesses: user.guesses.filter((g: { points: number }) => g.points > 0).length,
+  })).sort((a: UserWithStats, b: UserWithStats) => b.totalPoints - a.totalPoints)
 
   // Separate upcoming and completed matches
-  const upcomingMatches = matches.filter((m) => m.status === 'SCHEDULED')
-  const completedMatches = matches.filter((m) => m.status === 'COMPLETED')
+  const upcomingMatches = matches.filter((m: MatchWithRelations) => m.status === 'SCHEDULED')
+  const completedMatches = matches.filter((m: MatchWithRelations) => m.status === 'COMPLETED')
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -93,7 +164,7 @@ export default async function PredictionsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {userStats.slice(0, 5).map((user, index) => (
+                {userStats.slice(0, 5).map((user: UserWithStats, index: number) => (
                   <div
                     key={user.id}
                     className="flex flex-col items-center p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border"
@@ -134,7 +205,7 @@ export default async function PredictionsPage() {
               </Card>
             ) : (
               <div className="space-y-6">
-                {upcomingMatches.map((match) => (
+                {upcomingMatches.map((match: MatchWithRelations) => (
                   <Card key={match.id}>
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between flex-wrap gap-4">
@@ -185,7 +256,7 @@ export default async function PredictionsPage() {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {match.guesses.map((guess) => (
+                              {match.guesses.map((guess: typeof match.guesses[0]) => (
                                 <TableRow key={guess.id}>
                                   <TableCell className="font-medium">
                                     {guess.user.name || guess.user.email}
@@ -231,31 +302,31 @@ export default async function PredictionsPage() {
                             <div>
                               <span className="text-muted-foreground">Home wins:</span>{' '}
                               <span className="font-bold">
-                                {match.guesses.filter((g) => g.homeScore > g.awayScore).length}
+                                {match.guesses.filter((g: typeof match.guesses[0]) => g.homeScore > g.awayScore).length}
                               </span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Away wins:</span>{' '}
                               <span className="font-bold">
-                                {match.guesses.filter((g) => g.awayScore > g.homeScore).length}
+                                {match.guesses.filter((g: typeof match.guesses[0]) => g.awayScore > g.homeScore).length}
                               </span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Draws:</span>{' '}
                               <span className="font-bold">
-                                {match.guesses.filter((g) => g.homeScore === g.awayScore).length}
+                                {match.guesses.filter((g: typeof match.guesses[0]) => g.homeScore === g.awayScore).length}
                               </span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Avg score:</span>{' '}
                               <span className="font-bold">
                                 {Math.round(
-                                  (match.guesses.reduce((sum, g) => sum + g.homeScore, 0) * 10) /
+                                  (match.guesses.reduce((sum: number, g: typeof match.guesses[0]) => sum + g.homeScore, 0) * 10) /
                                   match.guesses.length
                                 ) / 10}
                                 {' - '}
                                 {Math.round(
-                                  (match.guesses.reduce((sum, g) => sum + g.awayScore, 0) * 10) /
+                                  (match.guesses.reduce((sum: number, g: typeof match.guesses[0]) => sum + g.awayScore, 0) * 10) /
                                   match.guesses.length
                                 ) / 10}
                               </span>
@@ -267,7 +338,7 @@ export default async function PredictionsPage() {
                   </Card>
                 ))}
               </div>
-            </div>
+            )}
           </div>
 
           {/* Completed Matches with Results */}
@@ -275,7 +346,7 @@ export default async function PredictionsPage() {
             <div>
               <h2 className="text-2xl font-bold mb-4">Completed Matches - Results & How Everyone Did</h2>
               <div className="space-y-6">
-                {completedMatches.map((match) => (
+                {completedMatches.map((match: MatchWithRelations) => (
                   <Card key={match.id}>
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between flex-wrap gap-4">
@@ -325,8 +396,8 @@ export default async function PredictionsPage() {
                             </TableHeader>
                             <TableBody>
                               {match.guesses
-                                .sort((a, b) => b.points - a.points)
-                                .map((guess) => (
+                                .sort((a: typeof match.guesses[0], b: typeof match.guesses[0]) => b.points - a.points)
+                                .map((guess: typeof match.guesses[0]) => (
                                   <TableRow key={guess.id}>
                                     <TableCell className="font-medium">
                                       {guess.user.name || guess.user.email}

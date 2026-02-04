@@ -8,7 +8,9 @@
       "Bash(npx next dev:*)",
       "Bash(claude auth status:*)",
       "Bash(claude:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npx prisma:*)"
     ]
   }
 }
