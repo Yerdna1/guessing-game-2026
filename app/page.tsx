@@ -1,11 +1,16 @@
+'use client'
+
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Trophy, Target, TrendingUp, Users, Calendar, MapPin, ArrowRight, Sparkles, Medal } from 'lucide-react'
 import Link from 'next/link'
+import { LoginModal } from '@/components/LoginModal'
 
 export default function HomePage() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-slate-950">
       <Navbar />
@@ -268,6 +273,20 @@ export default function HomePage() {
       </main>
 
       <Footer />
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+
+      {/* Floating Sign In Button */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <Button
+          onClick={() => setIsLoginOpen(true)}
+          size="lg"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg rounded-full px-6"
+        >
+          Sign In
+        </Button>
+      </div>
     </div>
   )
 }
