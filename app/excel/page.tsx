@@ -201,7 +201,7 @@ export default function ExcelViewPage() {
     if (!data) return []
 
     // Map matches to their column positions based on the Excel structure
-    const matchColumns = []
+    const matchColumns: (Match & { columnGroup: number; pairIndex: number })[] = []
     const matchOrder = [
       'SVK-FIN', 'SWE-ITA', 'SUI-FRA', 'CZE-CAN', 'LAT-USA', 'GER-DEN',
       'FIN-SWE', 'ITA-SVK', 'FRA-CZE', 'CAN-SUI', 'SWE-SVK', 'GER-LAT',
@@ -312,7 +312,7 @@ export default function ExcelViewPage() {
                   IBM & OLYMPIC GAMES 2026 Guessing Game
                 </th>
                 {dates.map((date, idx) => (
-                  <th key={date} colSpan={2} className="border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-600 text-white text-center p-1">
+                  <th key={`date-${idx}`} colSpan={2} className="border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-600 text-white text-center p-1">
                     {date}
                   </th>
                 ))}

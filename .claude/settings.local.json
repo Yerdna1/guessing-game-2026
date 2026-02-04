@@ -10,7 +10,8 @@
       "Bash(claude:*)",
       "Bash(vercel:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(npm run db:clean-matches:*)"
     ]
   }
 }
