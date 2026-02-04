@@ -114,20 +114,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   debug: false, // Disable debug logs in production
   logger: {
-    error: (code: any, metadata: any) => {
+    error: (error: Error) => {
       // Suppress JWT decryption errors (they're handled by safeAuth)
-      if (code === 'JWTSessionError' ||
-          metadata?.message?.includes('no matching decryption secret')) {
+      if (error.message.includes('no matching decryption secret')) {
         return
       }
-      console.error(code, metadata)
+      console.error(error)
     },
-    warn: (code: any) => console.warn(code),
-    debug: (code: any, metadata: any) => {
-      // Only log debug in development
-      if (process.env.NODE_ENV === 'development') {
-        console.debug(code, metadata)
-      }
-    }
+    warn: (code: any) => console.warn(code)
   }
 })

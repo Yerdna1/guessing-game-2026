@@ -11,7 +11,8 @@
       "Bash(vercel:*)",
       "mcp__ide__getDiagnostics",
       "Bash(npx prisma:*)",
-      "Bash(npm run db:clean-matches:*)"
+      "Bash(npm run db:clean-matches:*)",
+      "Bash(tsx prisma/check-duplicates.ts:*)"
     ]
   }
 }
