@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useToast } from '@/hooks/use-toast'
+import { Save, Loader2 } from 'lucide-react'
 
 interface Team {
   id: string
@@ -41,52 +42,159 @@ interface ExcelGridData {
   guesses: Map<string, Guess>
 }
 
+interface EditingCell {
+  userId: string
+  matchId: string
+  homeScore: string
+  awayScore: string
+}
+
 export default function ExcelViewPage() {
   const [data, setData] = useState<ExcelGridData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [editingCells, setEditingCells] = useState<Map<string, EditingCell>>(new Map())
   const { toast } = useToast()
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch('/api/excel')
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await fetch('/api/excel')
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const result = await response.json()
-
-        if (result.error) {
-          throw new Error(result.error)
-        }
-
-        const guessesMap = new Map<string, Guess>()
-        if (Array.isArray(result.guesses)) {
-          result.guesses.forEach((guess: Guess) => {
-            guessesMap.set(`${guess.userId}_${guess.matchId}`, guess)
-          })
-        }
-
-        setData({
-          users: result.users || [],
-          matches: result.matches || [],
-          guesses: guessesMap
-        })
-      } catch (error) {
-        console.error('Error fetching data:', error)
-        toast({
-          title: 'Error',
-          description: 'Failed to load data: ' + (error instanceof Error ? error.message : 'Unknown error'),
-          variant: 'destructive'
-        })
-      } finally {
-        setLoading(false)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-    }
 
-    fetchData()
+      const result = await response.json()
+
+      if (result.error) {
+        throw new Error(result.error)
+      }
+
+      const guessesMap = new Map<string, Guess>()
+      if (Array.isArray(result.guesses)) {
+        result.guesses.forEach((guess: Guess) => {
+          guessesMap.set(`${guess.userId}_${guess.matchId}`, guess)
+        })
+      }
+
+      setData({
+        users: result.users || [],
+        matches: result.matches || [],
+        guesses: guessesMap
+      })
+    } catch (error) {
+      console.error('Error fetching data:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to load data: ' + (error instanceof Error ? error.message : 'Unknown error')
+      })
+    } finally {
+      setLoading(false)
+    }
   }, [toast])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  const saveGuess = async (userId: string, matchId: string, homeScore: number, awayScore: number) => {
+    try {
+      const response = await fetch('/api/guesses/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, matchId, homeScore, awayScore }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+
+      if (result.error) {
+        throw new Error(result.error)
+      }
+
+      // Update local state
+      const key = `${userId}_${matchId}`
+      const newGuess: Guess = {
+        userId,
+        matchId,
+        homeScore,
+        awayScore,
+        points: result.guess?.points
+      }
+
+      setData(prev => {
+        if (!prev) return prev
+        const newGuesses = new Map(prev.guesses)
+        newGuesses.set(key, newGuess)
+        return { ...prev, guesses: newGuesses }
+      })
+
+      // Clear editing state for this cell
+      setEditingCells(prev => {
+        const newMap = new Map(prev)
+        newMap.delete(key)
+        return newMap
+      })
+
+      return true
+    } catch (error) {
+      console.error('Error saving guess:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to save guess: ' + (error instanceof Error ? error.message : 'Unknown error')
+      })
+      return false
+    }
+  }
+
+  const handleCellChange = (userId: string, matchId: string, field: 'homeScore' | 'awayScore', value: string) => {
+    const key = `${userId}_${matchId}`
+
+    const existingGuess = data?.guesses.get(key)
+    const currentEditing = editingCells.get(key)
+
+    const homeScore = field === 'homeScore' ? value : (currentEditing?.homeScore ?? existingGuess?.homeScore.toString() ?? '')
+    const awayScore = field === 'awayScore' ? value : (currentEditing?.awayScore ?? existingGuess?.awayScore.toString() ?? '')
+
+    setEditingCells(prev => {
+      const newMap = new Map(prev)
+      newMap.set(key, { userId, matchId, homeScore, awayScore })
+      return newMap
+    })
+  }
+
+  const handleBlur = async (userId: string, matchId: string) => {
+    const key = `${userId}_${matchId}`
+    const editing = editingCells.get(key)
+
+    if (!editing) return
+
+    const homeScore = parseInt(editing.homeScore)
+    const awayScore = parseInt(editing.awayScore)
+
+    // Only save if both values are valid numbers
+    if (!isNaN(homeScore) && !isNaN(awayScore) && editing.homeScore.trim() !== '' && editing.awayScore.trim() !== '') {
+      await saveGuess(userId, matchId, homeScore, awayScore)
+    } else {
+      // Clear editing state if invalid
+      setEditingCells(prev => {
+        const newMap = new Map(prev)
+        newMap.delete(key)
+        return newMap
+      })
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent, userId: string, matchId: string) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur()
+    }
+  }
 
   // Group matches exactly as they appear in Excel
   const getExcelMatchColumns = () => {
@@ -160,6 +268,7 @@ export default function ExcelViewPage() {
   const matchColumns = getExcelMatchColumns()
   const dates = getDates()
   const times = getTimes()
+  const hasUnsavedChanges = editingCells.size > 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4">
@@ -169,6 +278,9 @@ export default function ExcelViewPage() {
           <h1 className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
             IBM & OLYMPIC GAMES 2026 Guessing Game
           </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            Click on any prediction cell to edit. Press Enter or click away to save.
+          </p>
         </div>
 
         {/* Rules Section */}
@@ -179,6 +291,16 @@ export default function ExcelViewPage() {
             if you guess just the winner: <strong>1pts</strong>. In PLAY OFF you receive <strong>+1 point</strong> for each mentioned scenario.
           </p>
         </div>
+
+        {/* Save indicator */}
+        {hasUnsavedChanges && (
+          <div className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-3 rounded flex items-center gap-3">
+            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+            <p className="text-xs text-blue-800 dark:text-blue-200">
+              You have unsaved changes. They will be saved automatically when you press Enter or click away from a cell.
+            </p>
+          </div>
+        )}
 
         {/* Excel-style Table */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-x-auto border-2 border-emerald-200 dark:border-emerald-700">
@@ -323,17 +445,40 @@ export default function ExcelViewPage() {
 
                     {/* Match Predictions and Points */}
                     {matchColumns.map((match, idx) => {
-                      const guess = data.guesses.get(`${user.id}_${match.id}`)
+                      const key = `${user.id}_${match.id}`
+                      const guess = data.guesses.get(key)
+                      const editing = editingCells.get(key)
+
+                      const displayHome = editing?.homeScore ?? guess?.homeScore.toString() ?? ''
+                      const displayAway = editing?.awayScore ?? guess?.awayScore.toString() ?? ''
+                      const isEditing = editing !== undefined
+
                       return (
                         <React.Fragment key={match.id}>
-                          <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center bg-blue-50 dark:bg-blue-900/20">
-                            {guess ? (
-                              <span className="font-mono font-bold text-blue-700 dark:text-blue-300 text-sm">
-                                {guess.homeScore}:{guess.awayScore}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400 dark:text-gray-600">-</span>
-                            )}
+                          <td className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${isEditing ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+                            <div className="flex items-center justify-center gap-1">
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                className="w-8 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                value={displayHome}
+                                onChange={(e) => handleCellChange(user.id, match.id, 'homeScore', e.target.value)}
+                                onBlur={() => handleBlur(user.id, match.id)}
+                                onKeyDown={(e) => handleKeyDown(e, user.id, match.id)}
+                                placeholder="-"
+                              />
+                              <span className="font-mono font-bold text-blue-700 dark:text-blue-300">:</span>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                className="w-8 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                value={displayAway}
+                                onChange={(e) => handleCellChange(user.id, match.id, 'awayScore', e.target.value)}
+                                onBlur={() => handleBlur(user.id, match.id)}
+                                onKeyDown={(e) => handleKeyDown(e, user.id, match.id)}
+                                placeholder="-"
+                              />
+                            </div>
                           </td>
                           <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
                             {/* Points column - would show points earned */}
@@ -380,6 +525,10 @@ export default function ExcelViewPage() {
             <div className="flex items-center gap-2">
               <span className="inline-block w-6 h-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded"></span>
               <span>Prediction cell</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-6 h-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded"></span>
+              <span>Editing</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="inline-block w-6 h-6 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded"></span>

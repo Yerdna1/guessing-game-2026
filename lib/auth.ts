@@ -112,4 +112,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  debug: false, // Disable debug logs in production
+  logger: {
+    error: (code: any, metadata: any) => {
+      // Suppress JWT decryption errors (they're handled by safeAuth)
+      if (code === 'JWTSessionError' ||
+          metadata?.message?.includes('no matching decryption secret')) {
+        return
+      }
+      console.error(code, metadata)
+    },
+    warn: (code: any) => console.warn(code),
+    debug: (code: any, metadata: any) => {
+      // Only log debug in development
+      if (process.env.NODE_ENV === 'development') {
+        console.debug(code, metadata)
+      }
+    }
+  }
 })
