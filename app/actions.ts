@@ -41,8 +41,9 @@ export async function registerUser(formData: FormData) {
   const country = formData.get('country') as string
 
   // Check if user already exists
-  const existing = await prisma.user.findUnique({
+  const existing = await (prisma.user as any).findUnique({
     where: { email },
+    select: { id: true, passwordHash: true },
   })
 
   if (!existing) {
@@ -62,7 +63,7 @@ export async function registerUser(formData: FormData) {
     // Update existing user's password if they don't have one
     if (!existing.passwordHash) {
       const passwordHash = await bcrypt.hash(password, 10)
-      await prisma.user.update({
+      await (prisma.user as any).update({
         where: { id: existing.id },
         data: { passwordHash }
       })
