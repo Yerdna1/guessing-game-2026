@@ -190,7 +190,7 @@ export default function ExcelViewPage() {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent, userId: string, matchId: string) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, userId: string, matchId: string) => {
     if (e.key === 'Enter') {
       e.currentTarget.blur()
     }
