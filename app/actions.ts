@@ -14,9 +14,7 @@ export async function signInWithCredentials(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  // For demo purposes, any email/password works
-  // In production, you'd validate credentials
-  await signIn('credentials', { email, redirectTo: '/dashboard' })
+  await signIn('credentials', { email, password, redirectTo: '/dashboard' })
 }
 
 export async function signInWithGoogle() {
