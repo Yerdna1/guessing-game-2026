@@ -1,7 +1,7 @@
 import { safeAuth } from '@/lib/safe-auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { MatchCard } from '@/components/MatchCard'
+import { MatchCardWrapper } from '@/components/MatchCardWrapper'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 
@@ -54,7 +54,7 @@ export default async function MatchesPage() {
               </h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {live.map((match) => (
-                  <MatchCard
+                  <MatchCardWrapper
                     key={match.id}
                     match={{
                       id: match.id,
@@ -86,7 +86,7 @@ export default async function MatchesPage() {
               <h2 className="text-2xl font-bold mb-4">Upcoming Matches</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {scheduled.map((match) => (
-                  <MatchCard
+                  <MatchCardWrapper
                     key={match.id}
                     match={{
                       id: match.id,
@@ -118,7 +118,7 @@ export default async function MatchesPage() {
               <h2 className="text-2xl font-bold mb-4">Completed Matches</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {completed.map((match) => (
-                  <MatchCard
+                  <MatchCardWrapper
                     key={match.id}
                     match={{
                       id: match.id,
