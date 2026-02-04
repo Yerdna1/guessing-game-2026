@@ -34,25 +34,22 @@ export async function registerUser(formData: FormData) {
     where: { email },
   })
 
-  if (existing) {
-    // User exists, just sign them in
-    await signIn('credentials', { email, redirectTo: '/dashboard' })
-    return
+  if (!existing) {
+    // Create new user with provided details
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        country: country || null,
+      },
+    })
   }
 
-  // Create new user
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      country: country || null,
-    },
-  })
-
+  // Sign in (user will be created automatically by credentials provider if needed)
   await signIn('credentials', { email, redirectTo: '/dashboard' })
 }
 
-export async function recalculateRankings() {
+export async function recalculateRankingsAction(): Promise<void> {
   const { recalculateRankings } = await import('@/lib/scoring')
-  return recalculateRankings('default')
+  await recalculateRankings('default')
 }

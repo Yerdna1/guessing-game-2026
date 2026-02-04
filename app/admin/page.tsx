@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MatchCard } from '@/components/MatchCard'
 import { Settings } from 'lucide-react'
-import { recalculateRankings } from '@/app/actions'
+import { recalculateRankingsAction } from '@/app/actions'
 
 export default async function AdminPage() {
   const session = await safeAuth()
@@ -57,7 +57,7 @@ export default async function AdminPage() {
                 Manage matches and update scores
               </p>
             </div>
-            <form action={recalculateRankings}>
+            <form action={recalculateRankingsAction}>
               <Button type="submit">
                 Recalculate Rankings
               </Button>

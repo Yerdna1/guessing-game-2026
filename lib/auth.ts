@@ -18,12 +18,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error('Email is required')
         }
 
-        const user = await prisma.user.findUnique({
+        let user = await prisma.user.findUnique({
           where: { email: credentials.email as string },
         })
 
+        // Demo mode: Auto-create user if doesn't exist
         if (!user) {
-          throw new Error('No user found with this email')
+          // Extract name from email (e.g., john@example.com -> John)
+          const emailName = credentials.email as string
+          const name = emailName.split('@')[0]
+            .split('.')
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ')
+
+          user = await prisma.user.create({
+            data: {
+              email: emailName,
+              name: name,
+              role: UserRole.USER,
+            },
+          })
         }
 
         // For demo purposes, we're not verifying password hash
