@@ -46,7 +46,7 @@ export default function HomePage() {
                     </Button>
                   </Link>
                   <Link href="/rules" className="w-full sm:w-auto">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm font-semibold px-8 py-6">
+                    <Button size="lg" className="w-full sm:w-auto bg-white text-emerald-700 hover:bg-emerald-50 font-bold px-8 py-6 text-lg shadow-2xl">
                       How It Works
                     </Button>
                   </Link>
