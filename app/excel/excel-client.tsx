@@ -252,7 +252,6 @@ export default function ExcelClient() {
     if (points === undefined || points === 0) return 'bg-blue-50 dark:bg-blue-900/20'
     if (points === 1) return 'bg-orange-100 dark:bg-orange-900/30'
     if (points === 2) return 'bg-blue-100 dark:bg-blue-900/30'
-    if (points === 3) return 'bg-blue-200 dark:bg-blue-800/40'
     if (points >= 4) return 'bg-green-100 dark:bg-green-900/30'
     return 'bg-blue-50 dark:bg-blue-900/20'
   }
@@ -521,10 +520,6 @@ export default function ExcelClient() {
             <div className="flex items-center gap-2">
               <span className="inline-block w-6 h-6 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded"></span>
               <span>4 pts - Exact score</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-6 h-6 bg-blue-200 dark:bg-blue-800/40 border border-blue-300 dark:border-blue-700 rounded"></span>
-              <span>3 pts - Winner + both teams score</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="inline-block w-6 h-6 bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded"></span>
