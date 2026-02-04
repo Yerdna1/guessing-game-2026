@@ -7,6 +7,9 @@ import * as bcrypt from 'bcryptjs'
 import { UserRole } from '@prisma/client'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  pages: {
+    signIn: '/login',
+  },
   providers: [
     Credentials({
       credentials: {
@@ -68,6 +71,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      // Redirect to home page after sign out
+      if (url === '/login' || url === `${baseUrl}/login`) {
+        return baseUrl
+      }
+      return url
+    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
@@ -102,9 +112,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true
     },
-  },
-  pages: {
-    signIn: '/login',
   },
   session: {
     strategy: 'jwt',

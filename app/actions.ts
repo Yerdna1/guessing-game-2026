@@ -7,7 +7,7 @@ import * as bcrypt from 'bcryptjs'
 import { randomBytes, createHash } from 'crypto'
 
 export async function signOutAction() {
-  await signOut()
+  await signOut({ redirectTo: '/' })
 }
 
 export async function signInWithCredentials(formData: FormData) {
