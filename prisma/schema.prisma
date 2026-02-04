@@ -67,6 +67,7 @@ model Match {
   homeScore     Int?
   awayScore     Int?
   isPlayoff     Boolean     @default(false)
+  matchNumber   Int?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 

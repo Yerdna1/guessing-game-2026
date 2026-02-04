@@ -28,6 +28,7 @@ export interface Match {
   stage: string
   venue?: string | null
   isPlayoff: boolean
+  matchNumber?: number | null
   userGuess?: {
     homeScore: number
     awayScore: number
@@ -128,6 +129,11 @@ export function MatchCard({ match, isAuthenticated, onSubmitGuess, onGetAIPredic
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
+              {match.matchNumber && (
+                <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold text-xs px-2 py-1 shadow-md">
+                  #{match.matchNumber}
+                </Badge>
+              )}
               {getStatusBadge()}
               {match.isPlayoff && (
                 <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold text-xs px-2 py-1 shadow-md">

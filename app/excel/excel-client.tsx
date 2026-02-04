@@ -340,7 +340,19 @@ export default function ExcelClient() {
                 ))}
               </tr>
 
-              {/* Row 2: Matches Row */}
+              {/* Row 2: Match Numbers Row */}
+              <tr>
+                <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-left p-2" style={{ fontSize: '11px', fontWeight: '600' }}>
+                  Match #
+                </th>
+                {matchColumns.map((match, idx) => (
+                  <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ fontSize: '11px', minWidth: '150px', width: '150px' }}>
+                    #{match.matchNumber}
+                  </th>
+                ))}
+              </tr>
+
+              {/* Row 3: Matches Row */}
               <tr>
                 <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-left p-2" style={{ fontSize: '11px', fontWeight: '600' }}>
                   Matches
@@ -352,7 +364,7 @@ export default function ExcelClient() {
                 ))}
               </tr>
 
-              {/* Row 3: vs Row */}
+              {/* Row 4: vs Row */}
               <tr>
                 <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
                 {matchColumns.map((_, idx) => (
@@ -362,7 +374,7 @@ export default function ExcelClient() {
                 ))}
               </tr>
 
-              {/* Row 4: Opposing Teams */}
+              {/* Row 5: Opposing Teams */}
               <tr>
                 <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
                 {matchColumns.map((match, idx) => (

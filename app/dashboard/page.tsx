@@ -161,6 +161,7 @@ export default async function DashboardPage() {
                       stage: match.stage,
                       venue: match.venue,
                       isPlayoff: match.isPlayoff,
+                      matchNumber: match.matchNumber,
                       userGuess: match.guesses[0] ? {
                         homeScore: match.guesses[0].homeScore,
                         awayScore: match.guesses[0].awayScore,
@@ -193,6 +194,7 @@ export default async function DashboardPage() {
                       stage: match.stage,
                       venue: match.venue,
                       isPlayoff: match.isPlayoff,
+                      matchNumber: match.matchNumber,
                       userGuess: match.guesses[0] ? {
                         homeScore: match.guesses[0].homeScore,
                         awayScore: match.guesses[0].awayScore,
