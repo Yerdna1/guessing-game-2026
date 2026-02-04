@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useToast } from '@/hooks/use-toast'
 
 interface Team {
@@ -38,7 +38,7 @@ interface Guess {
 interface ExcelGridData {
   users: User[]
   matches: Match[]
-  guesses: Map<string, Guess> // key: userId_matchId
+  guesses: Map<string, Guess>
 }
 
 export default function ExcelViewPage() {
@@ -49,34 +49,36 @@ export default function ExcelViewPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch users
-        const usersRes = await fetch('/api/users')
-        const usersData = await usersRes.json()
+        const response = await fetch('/api/excel')
 
-        // Fetch matches
-        const matchesRes = await fetch('/api/matches')
-        const matchesData = await matchesRes.json()
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
 
-        // Fetch guesses
-        const guessesRes = await fetch('/api/guesses')
-        const guessesData = await guessesRes.json()
+        const result = await response.json()
 
-        // Create a map for quick lookup
+        if (result.error) {
+          throw new Error(result.error)
+        }
+
         const guessesMap = new Map<string, Guess>()
-        guessesData.forEach((guess: Guess) => {
-          guessesMap.set(`${guess.userId}_${guess.matchId}`, guess)
-        })
+        if (Array.isArray(result.guesses)) {
+          result.guesses.forEach((guess: Guess) => {
+            guessesMap.set(`${guess.userId}_${guess.matchId}`, guess)
+          })
+        }
 
         setData({
-          users: usersData,
-          matches: matchesData,
+          users: result.users || [],
+          matches: result.matches || [],
           guesses: guessesMap
         })
       } catch (error) {
         console.error('Error fetching data:', error)
         toast({
           title: 'Error',
-          description: 'Failed to load data'
+          description: 'Failed to load data: ' + (error instanceof Error ? error.message : 'Unknown error'),
+          variant: 'destructive'
         })
       } finally {
         setLoading(false)
@@ -86,26 +88,59 @@ export default function ExcelViewPage() {
     fetchData()
   }, [toast])
 
-  // Group matches by date
-  const matchesByDate = data ? data.matches.reduce((acc, match) => {
-    const date = new Date(match.scheduledTime).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+  // Group matches exactly as they appear in Excel
+  const getExcelMatchColumns = () => {
+    if (!data) return []
+
+    // Map matches to their column positions based on the Excel structure
+    const matchColumns = []
+    const matchOrder = [
+      'SVK-FIN', 'SWE-ITA', 'SUI-FRA', 'CZE-CAN', 'LAT-USA', 'GER-DEN',
+      'FIN-SWE', 'ITA-SVK', 'FRA-CZE', 'CAN-SUI', 'SWE-SVK', 'GER-LAT',
+      'FIN-ITA', 'USA-DEN', 'SUI-CZE', 'CAN-FRA', 'DEN-LAT', 'USA-GER'
+    ]
+
+    matchOrder.forEach((key, index) => {
+      const [home, away] = key.split('-')
+      const match = data.matches.find(m =>
+        m.homeTeam.code === home && m.awayTeam.code === away
+      )
+      if (match) {
+        matchColumns.push({
+          ...match,
+          columnGroup: Math.floor(index / 2) + 1, // Group by pairs for dates
+          pairIndex: index % 2
+        })
+      }
     })
-    if (!acc[date]) {
-      acc[date] = []
-    }
-    acc[date].push(match)
-    return acc
-  }, {} as Record<string, Match[]>) : {}
+
+    return matchColumns
+  }
+
+  const getDates = () => {
+    const dates = [
+      '11/02/2026', '11/02/2026', '12/02/2026', '13/02/2026',
+      '14/02/2026', '15/02/2026'
+    ]
+    return dates
+  }
+
+  const getTimes = () => {
+    return [
+      '16:40', '21:10', '12:10', '16:40', '21:10',
+      '12:10', '16:40', '12:10', '16:40', '21:10',
+      '12:10', '16:40', '12:10', '16:40', '19:10', '12:10', '16:40', '19:10'
+    ]
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6">IBM & Olympic Games 2026 - Guessing Game</h1>
-          <div className="text-center py-12">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-8">
+        <div className="max-w-full mx-auto">
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading Excel data...</p>
+          </div>
         </div>
       </div>
     )
@@ -113,151 +148,200 @@ export default function ExcelViewPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6">IBM & Olympic Games 2026 - Guessing Game</h1>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-8">
+        <div className="max-w-full mx-auto">
+          <h1 className="text-3xl font-bold mb-6 text-center">IBM & OLYMPIC GAMES 2026 Guessing Game</h1>
           <div className="text-center py-12">No data available</div>
         </div>
       </div>
     )
   }
 
-  const sortedDates = Object.keys(matchesByDate).sort((a, b) =>
-    new Date(a.split('/').reverse().join('-')).getTime() - new Date(b.split('/').reverse().join('-')).getTime()
-  )
+  const matchColumns = getExcelMatchColumns()
+  const dates = getDates()
+  const times = getTimes()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
-      <div className="max-w-full mx-auto overflow-x-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">IBM & OLYMPIC GAMES 2026 Guessing Game</h1>
-          <p className="text-gray-600 dark:text-gray-400">Excel-style view of all predictions</p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4">
+      <div className="max-w-full mx-auto">
+        {/* Title */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
+            IBM & OLYMPIC GAMES 2026 Guessing Game
+          </h1>
         </div>
 
-        {/* Excel-style table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-          <table className="w-full border-collapse">
-            <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-              <tr>
-                {/* Fixed columns */}
-                <th className="border border-gray-300 dark:border-gray-600 p-2 text-xs font-bold text-center bg-blue-800 min-w-[60px]">
-                  ID
-                </th>
-                <th className="border border-gray-300 dark:border-gray-600 p-2 text-xs font-bold text-left bg-blue-800 min-w-[150px]">
-                  Name
-                </th>
-                <th className="border border-gray-300 dark:border-gray-600 p-2 text-xs font-bold text-center bg-blue-800 min-w-[100px]">
-                  Country
-                </th>
-                <th className="border border-gray-300 dark:border-gray-600 p-2 text-xs font-bold text-center bg-blue-800 min-w-[80px]">
-                  Filled
-                </th>
-                <th className="border border-gray-300 dark:border-gray-600 p-2 text-xs font-bold text-center bg-blue-800 min-w-[80px]">
-                  Accurate
-                </th>
-                <th className="border border-gray-300 dark:border-gray-600 p-2 text-xs font-bold text-center bg-blue-800 min-w-[80px]">
-                  Group Pts
-                </th>
-                <th className="border border-gray-300 dark:border-gray-600 p-2 text-xs font-bold text-center bg-blue-800 min-w-[80px]">
-                  Playoff Pts
-                </th>
-                <th className="border border-gray-300 dark:border-gray-600 p-2 text-xs font-bold text-center bg-blue-800 min-w-[80px]">
-                  Total Pts
-                </th>
+        {/* Rules Section */}
+        <div className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-3 rounded">
+          <p className="text-xs text-yellow-800 dark:text-yellow-200 leading-relaxed">
+            <strong>Rules:</strong> Guess just final score, so no draws can happen!!!.
+            If you guess exact score of match: <strong>4pts</strong>, if you guess the winner of match and number of goals scored by home or away team: <strong>2pts</strong>,
+            if you guess just the winner: <strong>1pts</strong>. In PLAY OFF you receive <strong>+1 point</strong> for each mentioned scenario.
+          </p>
+        </div>
 
-                {/* Match columns grouped by date */}
-                {sortedDates.map((date) => (
-                  <th key={date} colSpan={matchesByDate[date].length} className="border border-gray-300 dark:border-gray-600 p-1 bg-blue-900 text-center">
-                    <div className="text-xs font-semibold">{date}</div>
+        {/* Excel-style Table */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-x-auto border-2 border-emerald-200 dark:border-emerald-700">
+          <table className="w-full border-collapse" style={{ fontSize: '11px' }}>
+            <thead>
+              {/* Row 0: Title Row */}
+              <tr>
+                <th colSpan={9} className="border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-600 text-white text-left p-2" style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                  IBM & OLYMPIC GAMES 2026 Guessing Game
+                </th>
+                {dates.map((date, idx) => (
+                  <th key={date} colSpan={2} className="border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-600 text-white text-center p-1">
+                    {date}
                   </th>
                 ))}
               </tr>
-              <tr className="bg-blue-700">
-                {/* Empty headers for fixed columns */}
-                <th className="border border-gray-300 dark:border-gray-600 p-0 bg-blue-800"></th>
-                <th className="border border-gray-300 dark:border-gray-600 p-0 bg-blue-800"></th>
-                <th className="border border-gray-300 dark:border-gray-600 p-0 bg-blue-800"></th>
-                <th className="border border-gray-300 dark:border-gray-600 p-0 bg-blue-800"></th>
-                <th className="border border-gray-300 dark:border-gray-600 p-0 bg-blue-800"></th>
-                <th className="border border-gray-300 dark:border-gray-600 p-0 bg-blue-800"></th>
-                <th className="border border-gray-300 dark:border-gray-600 p-0 bg-blue-800"></th>
-                <th className="border border-gray-300 dark:border-gray-600 p-0 bg-blue-800"></th>
 
-                {/* Match headers with team codes */}
-                {sortedDates.map((date) =>
-                  matchesByDate[date].map((match) => (
-                    <th key={match.id} className="border border-gray-300 dark:border-gray-600 p-1 text-center min-w-[120px]">
-                      <div className="text-xs font-medium">
-                        {match.homeTeam.code}
-                      </div>
-                      <div className="text-xs text-blue-200">vs</div>
-                      <div className="text-xs font-medium">
-                        {match.awayTeam.code}
-                      </div>
-                      <div className="text-xs text-blue-300 mt-1">
-                        {new Date(match.scheduledTime).toLocaleTimeString('en-GB', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: false
-                        })}
-                      </div>
-                    </th>
-                  ))
-                )}
+              {/* Row 1: Time Row */}
+              <tr>
+                <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-left p-1" style={{ fontSize: '11px', fontWeight: '600' }}>
+                  Game Date
+                </th>
+                {times.map((time, idx) => (
+                  <th key={idx} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ fontSize: '11px' }}>
+                    {time}
+                  </th>
+                ))}
+              </tr>
+
+              {/* Row 2: Matches Row */}
+              <tr>
+                <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-left p-2" style={{ fontSize: '11px', fontWeight: '600' }}>
+                  Matches
+                </th>
+                {matchColumns.map((match, idx) => (
+                  <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1">
+                    {match.homeTeam.code}
+                  </th>
+                ))}
+                {/* Empty Points columns */}
+                {matchColumns.map((_, idx) => (
+                  <th key={`pts-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1">
+                    Points
+                  </th>
+                ))}
+              </tr>
+
+              {/* Row 3: vs Row */}
+              <tr>
+                <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
+                {matchColumns.map((_, idx) => (
+                  <th key={idx} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 text-center p-1" style={{ fontSize: '10px', fontStyle: 'italic' }}>
+                    vs
+                  </th>
+                ))}
+                {matchColumns.map((_, idx) => (
+                  <th key={`vs-pts-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
+                ))}
+              </tr>
+
+              {/* Row 4: Opposing Teams */}
+              <tr>
+                <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
+                {matchColumns.map((match, idx) => (
+                  <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 text-center p-1" style={{ fontSize: '11px', fontWeight: '600' }}>
+                    {match.awayTeam.code}
+                  </th>
+                ))}
+                {matchColumns.map((_, idx) => (
+                  <th key={`away-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
+                ))}
+              </tr>
+
+              {/* Row 5: Header Row for User Data */}
+              <tr className="bg-gray-100 dark:bg-gray-700">
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '40px' }}>
+                  ID
+                </th>
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-left font-bold" style={{ width: '150px' }}>
+                  Name
+                </th>
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-left font-bold" style={{ width: '200px' }}>
+                  Mail
+                </th>
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '100px' }}>
+                  Country
+                </th>
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '80px' }}>
+                  Filled matches
+                </th>
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '80px' }}>
+                  Accurate guesses
+                </th>
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '100px' }}>
+                  Group-stage Points
+                </th>
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '100px' }}>
+                  Play-off Points
+                </th>
+                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '80px' }}>
+                  Total Points
+                </th>
+                <th colSpan={matchColumns.length * 2} className="border-2 border-emerald-400 dark:border-emerald-600 bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100 p-2 text-center font-bold" style={{ fontSize: '12px' }}>
+                  Results:
+                </th>
               </tr>
             </thead>
+
             <tbody>
-              {data.users.map((user, index) => {
-                const userGuesses = data.matches.filter(m =>
+              {data.users.map((user, userIndex) => {
+                const filledMatches = data.matches.filter(m =>
                   data.guesses.has(`${user.id}_${m.id}`)
-                )
-                const filledCount = userGuesses.length
+                ).length
 
                 return (
-                  <tr key={user.id} className={index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-750'}>
-                    {/* Fixed columns */}
-                    <td className="border border-gray-300 dark:border-gray-700 p-2 text-center text-xs">
-                      {index + 1}
+                  <tr key={user.id} className={userIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-750'}>
+                    {/* Fixed Columns */}
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100 font-mono">
+                      {userIndex + 1}
                     </td>
-                    <td className="border border-gray-300 dark:border-gray-700 p-2 text-xs font-medium">
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-gray-900 dark:text-gray-100 font-medium">
                       {user.name}
                     </td>
-                    <td className="border border-gray-300 dark:border-gray-700 p-2 text-xs text-center">
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-gray-600 dark:text-gray-400 text-xs">
+                      {user.email}
+                    </td>
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
                       {user.country}
                     </td>
-                    <td className="border border-gray-300 dark:border-gray-700 p-2 text-center text-xs">
-                      {filledCount}
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
+                      {filledMatches}
                     </td>
-                    <td className="border border-gray-300 dark:border-gray-700 p-2 text-center text-xs">
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
                       0
                     </td>
-                    <td className="border border-gray-300 dark:border-gray-700 p-2 text-center text-xs">
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
                       0
                     </td>
-                    <td className="border border-gray-300 dark:border-gray-700 p-2 text-center text-xs">
-                      0
-                    </td>
-                    <td className="border border-gray-300 dark:border-gray-700 p-2 text-center text-xs font-bold">
+                    <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
                       0
                     </td>
 
-                    {/* Guess cells */}
-                    {sortedDates.map((date) =>
-                      matchesByDate[date].map((match) => {
-                        const guess = data.guesses.get(`${user.id}_${match.id}`)
-                        return (
-                          <td key={match.id} className="border border-gray-300 dark:border-gray-700 p-1 text-center">
+                    {/* Match Predictions and Points */}
+                    {matchColumns.map((match, idx) => {
+                      const guess = data.guesses.get(`${user.id}_${match.id}`)
+                      return (
+                        <React.Fragment key={match.id}>
+                          <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center bg-blue-50 dark:bg-blue-900/20">
                             {guess ? (
-                              <div className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
+                              <span className="font-mono font-bold text-blue-700 dark:text-blue-300 text-sm">
                                 {guess.homeScore}:{guess.awayScore}
-                              </div>
+                              </span>
                             ) : (
-                              <div className="text-xs text-gray-400">-</div>
+                              <span className="text-gray-400 dark:text-gray-600">-</span>
                             )}
                           </td>
-                        )
-                      })
-                    )}
+                          <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
+                            {/* Points column - would show points earned */}
+                            {guess && guess.points ? guess.points : '-'}
+                          </td>
+                        </React.Fragment>
+                      )
+                    })}
                   </tr>
                 )
               })}
@@ -265,39 +349,45 @@ export default function ExcelViewPage() {
           </table>
         </div>
 
-        {/* Legend */}
-        <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-          <h3 className="font-semibold mb-2 text-sm">Legend:</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-600 dark:bg-blue-400 rounded"></div>
-              <span>User Guess</span>
+        {/* Stats Footer */}
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Total Users</div>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{data.users.length}</div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border border-gray-300 rounded"></div>
-              <span>No Guess</span>
+            <div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Total Matches</div>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{data.matches.length}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Total Guesses</div>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{data.guesses.size}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Fill Rate</div>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                {Math.round((data.guesses.size / (data.users.length * data.matches.length)) * 100)}%
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Total Users</div>
-            <div className="text-2xl font-bold">{data.users.length}</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Total Matches</div>
-            <div className="text-2xl font-bold">{data.matches.length}</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Total Guesses</div>
-            <div className="text-2xl font-bold">{data.guesses.size}</div>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Participation</div>
-            <div className="text-2xl font-bold">
-              {Math.round((data.guesses.size / (data.users.length * data.matches.length)) * 100)}%
+        {/* Legend */}
+        <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
+          <h3 className="font-semibold mb-3 text-sm text-gray-700 dark:text-gray-300">Legend:</h3>
+          <div className="flex flex-wrap gap-4 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-6 h-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded"></span>
+              <span>Prediction cell</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-6 h-6 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded"></span>
+              <span>No prediction</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-6 h-6 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"></span>
+              <span>Alternating rows</span>
             </div>
           </div>
         </div>
