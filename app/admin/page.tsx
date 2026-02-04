@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Settings, RefreshCw, Save, CheckCircle2, Trash2, Plus, Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react'
-import { recalculateRankingsAction, updateMatchResult, updateRules, createMatch, deleteMatch } from '@/app/actions'
+import { Settings, RefreshCw, Save, CheckCircle2, Plus, Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react'
+import { recalculateRankingsAction, updateMatchResult, updateRules, createMatch } from '@/app/actions'
+import { DeleteMatchButton } from '@/components/DeleteMatchButton'
 
 export default async function AdminPage() {
   const session = await safeAuth()
@@ -370,18 +371,12 @@ export default async function AdminPage() {
                           })}
                         </span>
                       </div>
-                      <form action={deleteMatch} className="inline">
-                        <input type="hidden" name="matchId" value={match.id} />
-                        <Button
-                          type="submit"
-                          size="sm"
-                          variant="destructive"
-                          className="gap-1"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Delete
-                        </Button>
-                      </form>
+                      <DeleteMatchButton
+                        matchId={match.id}
+                        matchNumber={match.matchNumber ?? 0}
+                        homeTeam={match.homeTeam.code}
+                        awayTeam={match.awayTeam.code}
+                      />
                     </div>
 
                     <form action={updateMatchResult}>
