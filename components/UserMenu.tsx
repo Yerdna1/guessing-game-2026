@@ -9,8 +9,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { User, Settings, LogOut, Lock } from 'lucide-react'
+import { User, LogOut, Lock } from 'lucide-react'
 import Link from 'next/link'
+import { signOutAction } from '@/app/actions'
 
 interface UserMenuProps {
   user: {
@@ -53,7 +54,7 @@ export function UserMenu({ user }: UserMenuProps) {
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
-        <form action="/api/auth/signout" method="POST">
+        <form action={signOutAction}>
           <DropdownMenuItem asChild>
             <button type="submit" className="w-full flex items-center">
               <LogOut className="mr-2 h-4 w-4" />
