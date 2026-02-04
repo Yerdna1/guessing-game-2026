@@ -106,15 +106,15 @@ function generateTempPassword(): string {
 
 // Extract user name from Excel row
 function extractUserName(row: any[]): string {
-  // Name is in column D (index 3)
-  const name = row[3]
+  // Name is in column B (index 1)
+  const name = row[1]
   return name && typeof name === 'string' ? name.trim() : 'Unknown User'
 }
 
 // Extract user country from Excel row
 function extractUserCountry(row: any[]): string {
-  // Country is in column E (index 4)
-  const country = row[4]
+  // Country is in column D (index 3)
+  const country = row[3]
   return country && typeof country === 'string' ? country.trim() : ''
 }
 
@@ -273,9 +273,10 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
 
     // Sync user data and guesses from Excel
     const userDataStartRow = 6 // Row 7 in Excel (0-indexed)
+    // Column structure: A=ID, B=Name, C=Email, D=Country, E=Filled, F-I=Stats, J+=Predictions
 
     for (let row = userDataStartRow; row < jsonData.length; row++) {
-      const email = jsonData[row]?.[2] // Column C
+      const email = jsonData[row]?.[2] // Column C (index 2)
 
       if (email && email !== 'Mail' && typeof email === 'string') {
         const trimmedEmail = email.trim()
