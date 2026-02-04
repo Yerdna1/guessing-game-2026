@@ -247,6 +247,16 @@ export default function ExcelClient() {
     })
   }
 
+  // Helper function to get cell background color based on points
+  const getPointsColor = (points: number | undefined) => {
+    if (points === undefined || points === 0) return 'bg-blue-50 dark:bg-blue-900/20'
+    if (points === 1) return 'bg-orange-100 dark:bg-orange-900/30'
+    if (points === 2) return 'bg-blue-100 dark:bg-blue-900/30'
+    if (points === 3) return 'bg-blue-200 dark:bg-blue-800/40'
+    if (points >= 4) return 'bg-green-100 dark:bg-green-900/30'
+    return 'bg-blue-50 dark:bg-blue-900/20'
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-8">
@@ -341,12 +351,6 @@ export default function ExcelClient() {
                     {match.homeTeam.code}
                   </th>
                 ))}
-                {/* Empty Points columns */}
-                {matchColumns.map((_, idx) => (
-                  <th key={`pts-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ minWidth: '70px', width: '70px' }}>
-                    Points
-                  </th>
-                ))}
               </tr>
 
               {/* Row 3: vs Row */}
@@ -357,9 +361,6 @@ export default function ExcelClient() {
                     vs
                   </th>
                 ))}
-                {matchColumns.map((_, idx) => (
-                  <th key={`vs-pts-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
-                ))}
               </tr>
 
               {/* Row 4: Opposing Teams */}
@@ -369,9 +370,6 @@ export default function ExcelClient() {
                   <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 text-center p-1" style={{ fontSize: '11px', fontWeight: '600' }}>
                     {match.awayTeam.code}
                   </th>
-                ))}
-                {matchColumns.map((_, idx) => (
-                  <th key={`away-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
                 ))}
               </tr>
 
@@ -404,7 +402,7 @@ export default function ExcelClient() {
                 <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '80px' }}>
                   Total Points
                 </th>
-                <th colSpan={matchColumns.length * 2} className="border-2 border-emerald-400 dark:border-emerald-600 bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100 p-2 text-center font-bold" style={{ fontSize: '12px' }}>
+                <th colSpan={matchColumns.length} className="border-2 border-emerald-400 dark:border-emerald-600 bg-orange-100 dark:bg-orange-900/30 text-orange-900 dark:text-orange-100 p-2 text-center font-bold" style={{ fontSize: '12px' }}>
                   Results:
                 </th>
               </tr>
@@ -458,37 +456,31 @@ export default function ExcelClient() {
                       const isEditing = editing !== undefined
 
                       return (
-                        <React.Fragment key={match.id}>
-                          <td className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${isEditing ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`} style={{ minWidth: '150px', width: '150px', whiteSpace: 'nowrap' }}>
-                            <div className="flex items-center justify-center gap-1 whitespace-nowrap">
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                className="w-14 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                value={displayHome}
-                                onChange={(e) => handleCellChange(user.id, match.id, 'homeScore', e.target.value)}
-                                onBlur={() => handleBlur(user.id, match.id)}
-                                onKeyDown={(e) => handleKeyDown(e, user.id, match.id)}
-                                placeholder="-"
-                              />
-                              <span className="font-mono font-bold text-blue-700 dark:text-blue-300">:</span>
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                className="w-14 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                value={displayAway}
-                                onChange={(e) => handleCellChange(user.id, match.id, 'awayScore', e.target.value)}
-                                onBlur={() => handleBlur(user.id, match.id)}
-                                onKeyDown={(e) => handleKeyDown(e, user.id, match.id)}
-                                placeholder="-"
-                              />
-                            </div>
-                          </td>
-                          <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100" style={{ minWidth: '70px', width: '70px', whiteSpace: 'nowrap' }}>
-                            {/* Points column - would show points earned */}
-                            {guess && guess.points ? guess.points : '-'}
-                          </td>
-                        </React.Fragment>
+                        <td key={match.id} className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${isEditing ? 'bg-yellow-50 dark:bg-yellow-900/20' : getPointsColor(guess?.points)}`} style={{ minWidth: '150px', width: '150px', whiteSpace: 'nowrap' }}>
+                          <div className="flex items-center justify-center gap-1 whitespace-nowrap">
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              className="w-14 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                              value={displayHome}
+                              onChange={(e) => handleCellChange(user.id, match.id, 'homeScore', e.target.value)}
+                              onBlur={() => handleBlur(user.id, match.id)}
+                              onKeyDown={(e) => handleKeyDown(e, user.id, match.id)}
+                              placeholder="-"
+                            />
+                            <span className="font-mono font-bold text-blue-700 dark:text-blue-300">:</span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              className="w-14 text-center font-mono font-bold text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                              value={displayAway}
+                              onChange={(e) => handleCellChange(user.id, match.id, 'awayScore', e.target.value)}
+                              onBlur={() => handleBlur(user.id, match.id)}
+                              onKeyDown={(e) => handleKeyDown(e, user.id, match.id)}
+                              placeholder="-"
+                            />
+                          </div>
+                        </td>
                       )
                     })}
                   </tr>
@@ -524,19 +516,27 @@ export default function ExcelClient() {
 
         {/* Legend */}
         <div className="mt-4 bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-          <h3 className="font-semibold mb-3 text-sm text-gray-700 dark:text-gray-300">Legend:</h3>
+          <h3 className="font-semibold mb-3 text-sm text-gray-700 dark:text-gray-300">Points Legend:</h3>
           <div className="flex flex-wrap gap-4 text-xs">
             <div className="flex items-center gap-2">
+              <span className="inline-block w-6 h-6 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded"></span>
+              <span>4 pts - Exact score</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-6 h-6 bg-blue-200 dark:bg-blue-800/40 border border-blue-300 dark:border-blue-700 rounded"></span>
+              <span>3 pts - Winner + both teams score</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-6 h-6 bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded"></span>
+              <span>2 pts - Winner + one team score</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-6 h-6 bg-orange-100 dark:bg-orange-900/30 border border-orange-300 dark:border-orange-700 rounded"></span>
+              <span>1 pt - Correct winner only</span>
+            </div>
+            <div className="flex items-center gap-2">
               <span className="inline-block w-6 h-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded"></span>
-              <span>Prediction cell</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-6 h-6 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded"></span>
-              <span>No prediction</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-6 h-6 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"></span>
-              <span>Alternating rows</span>
+              <span>0 pts - No points / No prediction</span>
             </div>
           </div>
         </div>
