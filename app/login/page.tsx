@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Trophy } from 'lucide-react'
+import { Trophy, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { signInWithCredentials, signInWithGoogle, signInWithGitHub } from '@/app/actions'
 
@@ -25,7 +25,13 @@ function GitHubIcon({ className }: { className?: string }) {
   )
 }
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: { 'reset-success'?: string }
+}) {
+  const resetSuccess = searchParams['reset-success']
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
       <div className="w-full max-w-md">
@@ -36,6 +42,15 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold">Welcome Back</h1>
           <p className="text-muted-foreground">Sign in to your account</p>
         </div>
+
+        {resetSuccess && (
+          <div className="mb-4 p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+            <p className="text-sm text-green-800 dark:text-green-200">
+              Your password has been reset successfully. Please sign in with your new password.
+            </p>
+          </div>
+        )}
 
         <Card>
           <CardHeader>
@@ -57,7 +72,15 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   name="password"

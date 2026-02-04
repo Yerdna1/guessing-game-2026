@@ -4,6 +4,7 @@ import { signIn, signOut } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import * as bcrypt from 'bcryptjs'
+import { randomBytes, createHash } from 'crypto'
 
 export async function signOutAction() {
   await signOut()
@@ -41,8 +42,8 @@ export async function registerUser(formData: FormData) {
     // Hash the password
     const passwordHash = await bcrypt.hash(password, 10)
 
-    // Create new user with provided details
-    await prisma.user.create({
+    // Create new user with provided details using unchecked create for passwordHash
+    await (prisma.user as any).create({
       data: {
         name,
         email,
@@ -50,6 +51,15 @@ export async function registerUser(formData: FormData) {
         passwordHash,
       },
     })
+  } else {
+    // Update existing user's password if they don't have one
+    if (!existing.passwordHash) {
+      const passwordHash = await bcrypt.hash(password, 10)
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { passwordHash }
+      })
+    }
   }
 
   // Sign in with email and password
@@ -110,4 +120,104 @@ export async function changePassword(formData: FormData) {
 
   // Redirect to dashboard
   redirect('/dashboard?password-changed=true')
+}
+
+export async function forgotPassword(formData: FormData) {
+  const email = formData.get('email') as string
+
+  // Check if user exists
+  const user = await prisma.user.findUnique({
+    where: { email },
+  })
+
+  // Always redirect to avoid email enumeration
+  // Even if user doesn't exist, redirect to the same page
+  if (!user) {
+    redirect('/forgot-password?link-sent=true')
+  }
+
+  // For OAuth-only users without a password, they can't reset
+  if (!user.passwordHash) {
+    redirect('/forgot-password?oauth=true')
+  }
+
+  // Generate reset token
+  const resetToken = createHash('sha256')
+    .update(randomBytes(32).toString('base64'))
+    .digest('base64')
+    .replace(/[/+=]/g, '')
+    .substring(0, 48)
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+  // Store reset token in VerificationToken table
+  await prisma.verificationToken.create({
+    data: {
+      identifier: email,
+      token: resetToken,
+      expires: expiresAt,
+    },
+  })
+
+  // For demo purposes, redirect with the token in URL
+  // In production, you would send an email with the reset link
+  redirect(`/forgot-password?link-sent=true&token=${resetToken}`)
+}
+
+export async function resetPassword(formData: FormData) {
+  const token = formData.get('token') as string
+  const newPassword = formData.get('newPassword') as string
+  const confirmPassword = formData.get('confirmPassword') as string
+
+  // Validate passwords match
+  if (newPassword !== confirmPassword) {
+    throw new Error('Passwords do not match')
+  }
+
+  if (newPassword.length < 6) {
+    throw new Error('Password must be at least 6 characters long')
+  }
+
+  // Find the verification token
+  const verificationToken = await prisma.verificationToken.findUnique({
+    where: { token },
+  })
+
+  if (!verificationToken) {
+    throw new Error('Invalid or expired reset link')
+  }
+
+  // Check if token is expired
+  if (verificationToken.expires < new Date()) {
+    // Delete expired token
+    await prisma.verificationToken.delete({
+      where: { token },
+    })
+    throw new Error('Reset link has expired')
+  }
+
+  // Find user by email
+  const user = await prisma.user.findUnique({
+    where: { email: verificationToken.identifier },
+  })
+
+  if (!user) {
+    throw new Error('User not found')
+  }
+
+  // Hash new password
+  const passwordHash = await bcrypt.hash(newPassword, 10)
+
+  // Update user password
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash },
+  })
+
+  // Delete the used token
+  await prisma.verificationToken.delete({
+    where: { token },
+  })
+
+  // Redirect to login with success message
+  redirect('/login?reset-success=true')
 }

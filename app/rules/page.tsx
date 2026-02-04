@@ -2,7 +2,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Trophy, Target, TrendingUp, Award } from 'lucide-react'
+import { Trophy, Target, Award } from 'lucide-react'
 
 export default function RulesPage() {
   return (
@@ -127,39 +127,6 @@ export default function RulesPage() {
             </CardContent>
           </Card>
 
-          {/* Tips */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-6 w-6" />
-                Pro Tips
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span>Submit your predictions early - you can always edit them up until the match starts</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span>Pay attention to team form and injuries when making predictions</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span>Playoff matches are worth more points - make them count!</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span>Check the standings regularly to track your progress</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span>Use the AI prediction feature for intelligent suggestions based on team statistics</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
         </div>
       </main>
 
