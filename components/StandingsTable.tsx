@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Trophy, Medal, Award, TrendingUp, Target, CheckCircle } from 'lucide-react'
+import { Trophy, Medal, Award, TrendingUp, Target, CheckCircle, ChevronUp, ChevronDown } from 'lucide-react'
 import { Pagination } from '@/components/ui/pagination'
 
 export interface RankingEntry {
@@ -27,6 +27,8 @@ interface StandingsTableProps {
   pageSize?: number
 }
 
+type SortField = 'totalPoints' | 'totalGuesses' | 'accurateGuesses' | 'groupStagePoints' | 'playoffPoints' | 'accuracy' | 'name'
+
 export function StandingsTable({
   rankings,
   title = 'Standings',
@@ -34,11 +36,75 @@ export function StandingsTable({
   pageSize = 30
 }: StandingsTableProps) {
   const [currentPage, setCurrentPage] = useState(1)
+  const [sortField, setSortField] = useState<SortField>('totalPoints')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
-  const totalPages = Math.ceil(rankings.length / pageSize)
+  // Sort and filter rankings
+  const sortedRankings = useMemo(() => {
+    const sorted = [...rankings].sort((a, b) => {
+      let comparison = 0
+
+      switch (sortField) {
+        case 'totalPoints':
+          comparison = b.totalPoints - a.totalPoints
+          break
+        case 'totalGuesses':
+          comparison = b.totalGuesses - a.totalGuesses
+          break
+        case 'accurateGuesses':
+          comparison = b.accurateGuesses - a.accurateGuesses
+          break
+        case 'groupStagePoints':
+          comparison = b.groupStagePoints - a.groupStagePoints
+          break
+        case 'playoffPoints':
+          comparison = b.playoffPoints - a.playoffPoints
+          break
+        case 'accuracy':
+          const aAccuracy = a.totalGuesses > 0 ? a.accurateGuesses / a.totalGuesses : 0
+          const bAccuracy = b.totalGuesses > 0 ? b.accurateGuesses / b.totalGuesses : 0
+          comparison = bAccuracy - aAccuracy
+          break
+        case 'name':
+          comparison = (a.user.name || '').localeCompare(b.user.name || '')
+          break
+        default:
+          comparison = b.totalPoints - a.totalPoints
+      }
+
+      return sortOrder === 'asc' ? -comparison : comparison
+    })
+
+    // Recalculate places
+    return sorted.map((ranking, index) => ({
+      ...ranking,
+      place: index + 1,
+    }))
+  }, [rankings, sortField, sortOrder])
+
+  const totalPages = Math.ceil(sortedRankings.length / pageSize)
   const startIndex = (currentPage - 1) * pageSize
   const endIndex = startIndex + pageSize
-  const paginatedRankings = rankings.slice(startIndex, endIndex)
+  const paginatedRankings = sortedRankings.slice(startIndex, endIndex)
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortOrder('desc')
+    }
+    setCurrentPage(1) // Reset to first page when sorting changes
+  }
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) return null
+    return sortOrder === 'asc' ? (
+      <ChevronUp className="h-3 w-3" />
+    ) : (
+      <ChevronDown className="h-3 w-3" />
+    )
+  }
   const getPlaceIcon = (place: number | null) => {
     if (place === null) return null
     switch (place) {
@@ -112,7 +178,7 @@ export function StandingsTable({
             </div>
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4" />
-              <span>{rankings.length} Players</span>
+              <span>{sortedRankings.length} Players</span>
             </div>
           </div>
         </div>
@@ -123,27 +189,77 @@ export function StandingsTable({
             <thead>
               <tr>
                 <th className="w-20 text-center">#</th>
-                {showUserInfo && <th className="min-w-[200px]">Player</th>}
-                <th className="text-right w-24">
+                {showUserInfo && (
+                  <th
+                    className="min-w-[200px] cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors select-none"
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Player
+                      {getSortIcon('name')}
+                    </div>
+                  </th>
+                )}
+                <th
+                  className="text-right w-24 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors select-none"
+                  onClick={() => handleSort('totalPoints')}
+                >
                   <div className="flex items-center justify-end gap-1">
                     <TrendingUp className="h-4 w-4" />
                     Points
+                    {getSortIcon('totalPoints')}
                   </div>
                 </th>
-                <th className="text-right w-24">Guesses</th>
-                <th className="text-right w-24">
+                <th
+                  className="text-right w-24 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors select-none"
+                  onClick={() => handleSort('totalGuesses')}
+                >
+                  <div className="flex items-center justify-end gap-1">
+                    Guesses
+                    {getSortIcon('totalGuesses')}
+                  </div>
+                </th>
+                <th
+                  className="text-right w-24 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors select-none"
+                  onClick={() => handleSort('accurateGuesses')}
+                >
                   <div className="flex items-center justify-end gap-1">
                     <Target className="h-4 w-4" />
                     Exact
+                    {getSortIcon('accurateGuesses')}
                   </div>
                 </th>
-                <th className="text-right w-28">Group</th>
-                <th className="text-right w-28">Playoff</th>
-                <th className="text-right w-32">Accuracy</th>
+                <th
+                  className="text-right w-28 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors select-none"
+                  onClick={() => handleSort('groupStagePoints')}
+                >
+                  <div className="flex items-center justify-end gap-1">
+                    Group
+                    {getSortIcon('groupStagePoints')}
+                  </div>
+                </th>
+                <th
+                  className="text-right w-28 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors select-none"
+                  onClick={() => handleSort('playoffPoints')}
+                >
+                  <div className="flex items-center justify-end gap-1">
+                    Playoff
+                    {getSortIcon('playoffPoints')}
+                  </div>
+                </th>
+                <th
+                  className="text-right w-32 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors select-none"
+                  onClick={() => handleSort('accuracy')}
+                >
+                  <div className="flex items-center justify-end gap-1">
+                    Accuracy
+                    {getSortIcon('accuracy')}
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {rankings.length === 0 ? (
+              {sortedRankings.length === 0 ? (
                 <tr>
                   <td colSpan={showUserInfo ? 8 : 7} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3 text-slate-500">
@@ -259,13 +375,13 @@ export function StandingsTable({
               totalPages={totalPages}
               onPageChange={setCurrentPage}
               pageSize={pageSize}
-              totalItems={rankings.length}
+              totalItems={sortedRankings.length}
             />
           </div>
         )}
 
         {/* Legend */}
-        {rankings.length > 0 && (
+        {sortedRankings.length > 0 && (
           <div className="px-6 py-4 bg-emerald-50/50 dark:bg-emerald-950/30 border-t border-emerald-200 dark:border-emerald-800">
             <div className="flex flex-wrap items-center gap-6 text-xs">
               <div className="flex items-center gap-2">
