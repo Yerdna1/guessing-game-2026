@@ -47,7 +47,6 @@ export function MatchCardWrapper({ match, isAuthenticated, enableAI = false }: M
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to submit guess',
-        variant: 'destructive',
       })
       throw error
     } finally {
@@ -80,7 +79,6 @@ export function MatchCardWrapper({ match, isAuthenticated, enableAI = false }: M
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to get AI prediction',
-        variant: 'destructive',
       })
       throw error
     }

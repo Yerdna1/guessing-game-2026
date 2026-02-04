@@ -1,7 +1,7 @@
 import { safeAuth } from '@/lib/safe-auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { MatchCard } from '@/components/MatchCard'
+import { MatchCardWrapper } from '@/components/MatchCardWrapper'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -148,7 +148,7 @@ export default async function DashboardPage() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {upcomingMatches.map((match) => (
-                  <MatchCard
+                  <MatchCardWrapper
                     key={match.id}
                     match={{
                       id: match.id,
@@ -180,7 +180,7 @@ export default async function DashboardPage() {
               <h2 className="text-2xl font-bold mb-4">Recent Results</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {completedMatches.map((match) => (
-                  <MatchCard
+                  <MatchCardWrapper
                     key={match.id}
                     match={{
                       id: match.id,

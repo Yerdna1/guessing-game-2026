@@ -5,7 +5,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { MatchCard } from '@/components/MatchCard'
+import { MatchCardWrapper } from '@/components/MatchCardWrapper'
 import { Settings } from 'lucide-react'
 import { recalculateRankingsAction } from '@/app/actions'
 
@@ -119,7 +119,7 @@ export default async function AdminPage() {
             <CardContent>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {matches.map((match) => (
-                  <MatchCard
+                  <MatchCardWrapper
                     key={match.id}
                     match={{
                       id: match.id,
