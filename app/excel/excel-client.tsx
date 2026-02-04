@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useCallback } from 'react'
+import Image from 'next/image'
 import { useToast } from '@/hooks/use-toast'
 import { Save, Loader2, Upload, FileSpreadsheet, CheckCircle, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -541,7 +542,19 @@ export default function ExcelClient() {
                 </th>
                 {matchColumns.map((match, idx) => (
                   <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ minWidth: '150px', width: '150px' }}>
-                    {match.homeTeam.code}
+                    <div className="flex flex-col items-center gap-1">
+                      {match.homeTeam.flagUrl && (
+                        <div className="relative w-8 h-5 rounded overflow-hidden shadow-sm border border-emerald-300 dark:border-emerald-700">
+                          <Image
+                            src={match.homeTeam.flagUrl}
+                            alt={match.homeTeam.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                      <span className="font-bold">{match.homeTeam.code}</span>
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -561,7 +574,19 @@ export default function ExcelClient() {
                 <th colSpan={9} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 p-1"></th>
                 {matchColumns.map((match, idx) => (
                   <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 text-center p-1" style={{ fontSize: '11px', fontWeight: '600' }}>
-                    {match.awayTeam.code}
+                    <div className="flex flex-col items-center gap-1">
+                      {match.awayTeam.flagUrl && (
+                        <div className="relative w-8 h-5 rounded overflow-hidden shadow-sm border border-blue-300 dark:border-blue-700">
+                          <Image
+                            src={match.awayTeam.flagUrl}
+                            alt={match.awayTeam.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                      <span className="font-bold">{match.awayTeam.code}</span>
+                    </div>
                   </th>
                 ))}
               </tr>

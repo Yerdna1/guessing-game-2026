@@ -1,5 +1,6 @@
 import { safeAuth } from '@/lib/safe-auth'
 import { redirect } from 'next/navigation'
+import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
@@ -251,6 +252,16 @@ export default async function AdminPage() {
                       {/* Teams */}
                       <div className="flex items-center gap-6 flex-1 min-w-[300px]">
                         <div className="text-center">
+                          {match.homeTeam.flagUrl && (
+                            <div className="relative w-16 h-12 mx-auto mb-2 rounded-lg overflow-hidden shadow-md border-2 border-emerald-200 dark:border-emerald-800">
+                              <Image
+                                src={match.homeTeam.flagUrl}
+                                alt={match.homeTeam.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          )}
                           <p className="font-semibold">{match.homeTeam.code}</p>
                           <p className="text-sm text-muted-foreground">{match.homeTeam.name}</p>
                         </div>
@@ -284,6 +295,16 @@ export default async function AdminPage() {
                         </div>
 
                         <div className="text-center">
+                          {match.awayTeam.flagUrl && (
+                            <div className="relative w-16 h-12 mx-auto mb-2 rounded-lg overflow-hidden shadow-md border-2 border-blue-200 dark:border-blue-800">
+                              <Image
+                                src={match.awayTeam.flagUrl}
+                                alt={match.awayTeam.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          )}
                           <p className="font-semibold">{match.awayTeam.code}</p>
                           <p className="text-sm text-muted-foreground">{match.awayTeam.name}</p>
                         </div>
