@@ -5,6 +5,7 @@ import { MatchCardWrapper } from '@/components/MatchCardWrapper'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CompletedMatchesGrid } from '@/components/CompletedMatchesGrid'
 
 export default async function DashboardPage() {
   const session = await safeAuth()
@@ -67,7 +68,6 @@ export default async function DashboardPage() {
     orderBy: {
       scheduledTime: 'desc',
     },
-    take: 5,
   })
 
   return (
@@ -177,35 +177,27 @@ export default async function DashboardPage() {
 
           {/* Recent Results */}
           {completedMatches.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Recent Results</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {completedMatches.map((match) => (
-                  <MatchCardWrapper
-                    key={match.id}
-                    match={{
-                      id: match.id,
-                      scheduledTime: match.scheduledTime,
-                      homeTeam: match.homeTeam,
-                      awayTeam: match.awayTeam,
-                      status: match.status as any,
-                      homeScore: match.homeScore,
-                      awayScore: match.awayScore,
-                      stage: match.stage,
-                      venue: match.venue,
-                      isPlayoff: match.isPlayoff,
-                      matchNumber: match.matchNumber,
-                      userGuess: match.guesses[0] ? {
-                        homeScore: match.guesses[0].homeScore,
-                        awayScore: match.guesses[0].awayScore,
-                        points: match.guesses[0].points,
-                      } : null,
-                    }}
-                    isAuthenticated={true}
-                  />
-                ))}
-              </div>
-            </div>
+            <CompletedMatchesGrid
+              matches={completedMatches.map((match) => ({
+                id: match.id,
+                scheduledTime: match.scheduledTime,
+                homeTeam: match.homeTeam,
+                awayTeam: match.awayTeam,
+                status: match.status,
+                homeScore: match.homeScore,
+                awayScore: match.awayScore,
+                stage: match.stage,
+                venue: match.venue,
+                isPlayoff: match.isPlayoff,
+                matchNumber: match.matchNumber,
+                userGuess: match.guesses[0] ? {
+                  homeScore: match.guesses[0].homeScore,
+                  awayScore: match.guesses[0].awayScore,
+                  points: match.guesses[0].points,
+                } : null,
+              }))}
+              isAuthenticated={true}
+            />
           )}
         </div>
       </main>

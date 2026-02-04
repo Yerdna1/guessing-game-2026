@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, Medal, Award, TrendingUp, Target, CheckCircle } from 'lucide-react'
+import { Pagination } from '@/components/ui/pagination'
 
 export interface RankingEntry {
   place: number | null
@@ -22,9 +24,21 @@ interface StandingsTableProps {
   rankings: RankingEntry[]
   title?: string
   showUserInfo?: boolean
+  pageSize?: number
 }
 
-export function StandingsTable({ rankings, title = 'Standings', showUserInfo = true }: StandingsTableProps) {
+export function StandingsTable({
+  rankings,
+  title = 'Standings',
+  showUserInfo = true,
+  pageSize = 30
+}: StandingsTableProps) {
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const totalPages = Math.ceil(rankings.length / pageSize)
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const paginatedRankings = rankings.slice(startIndex, endIndex)
   const getPlaceIcon = (place: number | null) => {
     if (place === null) return null
     switch (place) {
@@ -140,62 +154,64 @@ export function StandingsTable({ rankings, title = 'Standings', showUserInfo = t
                   </td>
                 </tr>
               ) : (
-                rankings.map((ranking, index) => (
-                  <tr
-                    key={ranking.user.email}
-                    className={`transition-all duration-200 ${getRowBackground(index)} ${
-                      index < 3 ? 'border-l-4 border-l-emerald-500' : ''
-                    } hover:bg-emerald-100 dark:hover:bg-emerald-950`}
-                  >
-                    <td className="text-center font-semibold">
-                      {getPlaceIcon(ranking.place)}
-                    </td>
-                    {showUserInfo && (
-                      <td>
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-md ${
-                            index === 0
-                              ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white'
-                              : index === 1
-                              ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700'
-                              : index === 2
-                              ? 'bg-gradient-to-br from-amber-600 to-amber-700 text-white'
-                              : 'bg-gradient-to-br from-emerald-500 to-green-600 text-white'
-                          }`}>
-                            {ranking.user.name?.charAt(0)?.toUpperCase() || ranking.user.email.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-slate-900 dark:text-slate-100">
-                              {ranking.user.name || 'Anonymous'}
+                paginatedRankings.map((ranking, index) => {
+                  const actualIndex = startIndex + index
+                  return (
+                    <tr
+                      key={ranking.user.email}
+                      className={`transition-all duration-200 ${getRowBackground(index)} ${
+                        actualIndex < 3 ? 'border-l-4 border-l-emerald-500' : ''
+                      } hover:bg-emerald-100 dark:hover:bg-emerald-950`}
+                    >
+                      <td className="text-center font-semibold">
+                        {getPlaceIcon(ranking.place)}
+                      </td>
+                      {showUserInfo && (
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-md ${
+                              actualIndex === 0
+                                ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white'
+                                : actualIndex === 1
+                                ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700'
+                                : actualIndex === 2
+                                ? 'bg-gradient-to-br from-amber-600 to-amber-700 text-white'
+                                : 'bg-gradient-to-br from-emerald-500 to-green-600 text-white'
+                            }`}>
+                              {ranking.user.name?.charAt(0)?.toUpperCase() || ranking.user.email.charAt(0).toUpperCase()}
                             </div>
-                            {ranking.user.country && (
-                              <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                <span className="inline-block w-4 h-3 bg-gradient-to-br from-emerald-100 to-green-100 rounded shadow-sm"></span>
-                                {ranking.user.country}
+                            <div>
+                              <div className="font-semibold text-slate-900 dark:text-slate-100">
+                                {ranking.user.name || 'Anonymous'}
                               </div>
-                            )}
+                              {ranking.user.country && (
+                                <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                  <span className="inline-block w-4 h-3 bg-gradient-to-br from-emerald-100 to-green-100 rounded shadow-sm"></span>
+                                  {ranking.user.country}
+                                </div>
+                              )}
+                            </div>
                           </div>
+                        </td>
+                      )}
+                      <td className="text-right">
+                        <div className="inline-flex flex-col items-end">
+                          <span className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-green-700">
+                            {ranking.totalPoints}
+                          </span>
+                          {actualIndex < 3 && (
+                            <Badge className={`mt-1 text-xs ${
+                              actualIndex === 0
+                                ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                                : actualIndex === 1
+                                ? 'bg-slate-200 text-slate-800 border-slate-400'
+                                : 'bg-amber-100 text-amber-800 border-amber-300'
+                            }`}>
+                              {actualIndex === 0 ? '1st' : actualIndex === 1 ? '2nd' : '3rd'}
+                            </Badge>
+                          )}
                         </div>
                       </td>
-                    )}
-                    <td className="text-right">
-                      <div className="inline-flex flex-col items-end">
-                        <span className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-green-700">
-                          {ranking.totalPoints}
-                        </span>
-                        {index < 3 && (
-                          <Badge className={`mt-1 text-xs ${
-                            index === 0
-                              ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
-                              : index === 1
-                              ? 'bg-slate-200 text-slate-800 border-slate-400'
-                              : 'bg-amber-100 text-amber-800 border-amber-300'
-                          }`}>
-                            {index === 0 ? '1st' : index === 1 ? '2nd' : '3rd'}
-                          </Badge>
-                        )}
-                      </div>
-                    </td>
                     <td className="text-right">
                       <span className="font-medium text-slate-700 dark:text-slate-300">
                         {ranking.totalGuesses}
@@ -228,11 +244,25 @@ export function StandingsTable({ rankings, title = 'Standings', showUserInfo = t
                       </div>
                     </td>
                   </tr>
-                ))
+                  )
+                })
               )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-emerald-200 dark:border-emerald-800">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              pageSize={pageSize}
+              totalItems={rankings.length}
+            />
+          </div>
+        )}
 
         {/* Legend */}
         {rankings.length > 0 && (
