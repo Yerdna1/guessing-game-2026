@@ -13,7 +13,9 @@
       "Bash(npx prisma:*)",
       "Bash(npm run db:clean-matches:*)",
       "Bash(tsx prisma/check-duplicates.ts:*)",
-      "Bash(npm run db:remove-duplicates:*)"
+      "Bash(npm run db:remove-duplicates:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npx shadcn@latest init:*)"
     ]
   }
 }

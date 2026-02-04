@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { safeAuth } from '@/lib/safe-auth'
 import { signOutAction } from '@/app/actions'
 import { Trophy, Home, LogOut, User, Settings, LayoutDashboard, Users, Table } from 'lucide-react'
+import { UserMenu } from '@/components/UserMenu'
 
 export async function Navbar() {
   const session = await safeAuth()
@@ -80,29 +81,7 @@ export async function Navbar() {
           {/* Auth Section */}
           <div className="flex items-center gap-3">
             {session ? (
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">
-                      {session.user.name?.charAt(0)?.toUpperCase() || session.user.email?.charAt(0)?.toUpperCase()}
-                    </span>
-                  </div>
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {session.user.name || session.user.email}
-                  </span>
-                </div>
-                <form action={signOutAction}>
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    size="sm"
-                    className="border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:border-emerald-400 dark:hover:border-emerald-600"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Sign Out</span>
-                  </Button>
-                </form>
-              </div>
+              <UserMenu user={session.user} />
             ) : (
               <div className="flex items-center gap-2">
                 <Link href="/login">

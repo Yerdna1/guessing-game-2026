@@ -40,12 +40,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           })
         }
 
-        // For demo purposes, we're not verifying password hash
-        // In production, you would verify the password here
-        // const isValid = await bcrypt.compare(credentials.password as string, user.passwordHash)
-        // if (!isValid) {
-        //   throw new Error('Invalid password')
-        // }
+        // Verify password if user has a password hash
+        if (user.passwordHash) {
+          const isValid = await bcrypt.compare(credentials.password as string, user.passwordHash)
+          if (!isValid) {
+            throw new Error('Invalid password')
+          }
+        }
+        // For backward compatibility, accept any password if no hash is set
 
         return {
           id: user.id,

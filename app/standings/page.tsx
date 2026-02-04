@@ -8,22 +8,45 @@ export default async function StandingsPage() {
     where: { id: 'default' },
   })
 
-  const rankings = await prisma.ranking.findMany({
-    where: { tournamentId: 'default' },
+  // Get all users and their rankings (if they have any)
+  const users = await prisma.user.findMany({
     include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-          country: true,
-        },
+      rankings: {
+        where: { tournamentId: 'default' },
+        take: 1,
       },
     },
-    orderBy: [
-      { totalPoints: 'desc' },
-      { accurateGuesses: 'desc' },
-    ],
   })
+
+  // Transform the data to match the expected format
+  const rankings = users
+    .map((user) => {
+      const ranking = user.rankings[0]
+      return {
+        place: ranking?.place || null,
+        user: {
+          name: user.name,
+          email: user.email,
+          country: user.country,
+        },
+        totalPoints: ranking?.totalPoints || 0,
+        totalGuesses: ranking?.totalGuesses || 0,
+        accurateGuesses: ranking?.accurateGuesses || 0,
+        groupStagePoints: ranking?.groupStagePoints || 0,
+        playoffPoints: ranking?.playoffPoints || 0,
+      }
+    })
+    .sort((a, b) => {
+      // Sort by totalPoints desc, then accurateGuesses desc
+      if (b.totalPoints !== a.totalPoints) {
+        return b.totalPoints - a.totalPoints
+      }
+      return b.accurateGuesses - a.accurateGuesses
+    })
+    .map((ranking, index) => ({
+      ...ranking,
+      place: index + 1,
+    }))
 
   return (
     <div className="flex min-h-screen flex-col">
