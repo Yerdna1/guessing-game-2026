@@ -27,10 +27,16 @@ export async function signInWithCredentials(formData: FormData) {
 }
 
 export async function signInWithGoogle() {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    redirect('/login?error=OAuthNotConfigured')
+  }
   await signIn('google', { redirectTo: '/dashboard' })
 }
 
 export async function signInWithGitHub() {
+  if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+    redirect('/login?error=OAuthNotConfigured')
+  }
   await signIn('github', { redirectTo: '/dashboard' })
 }
 
@@ -462,6 +468,145 @@ export async function deleteMatch(formData: FormData) {
 
   revalidatePath('/admin')
   revalidatePath('/matches')
+  revalidatePath('/excel')
+  revalidatePath('/dashboard')
+}
+
+export async function createUser(formData: FormData) {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized')
+  }
+
+  const name = formData.get('name') as string
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  const country = formData.get('country') as string
+  const role = formData.get('role') as string
+
+  if (!name || !email) {
+    throw new Error('Name and email are required')
+  }
+
+  // Check if user already exists
+  const existing = await (prisma.user as any).findUnique({
+    where: { email },
+  })
+
+  if (existing) {
+    throw new Error('User with this email already exists')
+  }
+
+  // Hash password if provided
+  let passwordHash: string | null = null
+  if (password && password.trim() !== '') {
+    passwordHash = await bcrypt.hash(password, 10)
+  }
+
+  // Create new user
+  await (prisma.user as any).create({
+    data: {
+      name,
+      email,
+      country: country || null,
+      role: (role as any) || 'USER',
+      passwordHash,
+    },
+  })
+
+  revalidatePath('/admin')
+  revalidatePath('/excel')
+  revalidatePath('/dashboard')
+}
+
+export async function updateUser(formData: FormData) {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized')
+  }
+
+  const userId = formData.get('userId') as string
+  const name = formData.get('name') as string
+  const email = formData.get('email') as string
+  const country = formData.get('country') as string
+  const role = formData.get('role') as string
+  const password = formData.get('password') as string
+
+  if (!userId) {
+    throw new Error('User ID is required')
+  }
+
+  if (!name || !email) {
+    throw new Error('Name and email are required')
+  }
+
+  // Check if email is taken by another user
+  const existing = await (prisma.user as any).findUnique({
+    where: { email },
+  })
+
+  if (existing && existing.id !== userId) {
+    throw new Error('Email is already in use by another user')
+  }
+
+  // Prepare update data
+  const data: any = {
+    name,
+    email,
+    country: country || null,
+    role: (role as any) || 'USER',
+  }
+
+  // Update password if provided
+  if (password && password.trim() !== '') {
+    data.passwordHash = await bcrypt.hash(password, 10)
+  }
+
+  // Update user
+  await (prisma.user as any).update({
+    where: { id: userId },
+    data,
+  })
+
+  revalidatePath('/admin')
+  revalidatePath('/excel')
+  revalidatePath('/dashboard')
+}
+
+export async function deleteUser(formData: FormData) {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized')
+  }
+
+  const userId = formData.get('userId') as string
+
+  if (!userId) {
+    throw new Error('User ID is required')
+  }
+
+  // Prevent deleting yourself
+  if (session.user.id === userId) {
+    throw new Error('Cannot delete your own account')
+  }
+
+  // Delete all guesses for this user first
+  await prisma.guess.deleteMany({
+    where: { userId }
+  })
+
+  // Delete the user
+  await prisma.user.delete({
+    where: { id: userId }
+  })
+
+  revalidatePath('/admin')
   revalidatePath('/excel')
   revalidatePath('/dashboard')
 }

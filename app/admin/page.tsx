@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Settings, RefreshCw, Plus, Save } from 'lucide-react'
+import { Settings, RefreshCw, Plus, Save, Users } from 'lucide-react'
 import { recalculateRankingsAction, updateRules, createMatch } from '@/app/actions'
 import { AdminMatchesList } from '@/components/AdminMatchesList'
+import { AdminUsersList } from '@/components/AdminUsersList'
+import { DeleteUserButton } from '@/components/DeleteUserButton'
 
 export default async function AdminPage() {
   const session = await safeAuth()
@@ -33,6 +35,25 @@ export default async function AdminPage() {
   // Get all teams for the create match form
   const teams = await prisma.team.findMany({
     orderBy: { code: 'asc' }
+  })
+
+  // Get all users
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      country: true,
+      role: true,
+      _count: {
+        select: {
+          guesses: true
+        }
+      }
+    },
+    orderBy: {
+      name: 'asc'
+    }
   })
 
   // Get tournament stats
@@ -351,6 +372,22 @@ export default async function AdminPage() {
 
               {/* Existing Matches */}
               <AdminMatchesList matches={matches} />
+            </CardContent>
+          </Card>
+
+          {/* Users Management */}
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                User Management
+              </CardTitle>
+              <CardDescription>
+                Create, edit, and manage user accounts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminUsersList users={users} />
             </CardContent>
           </Card>
         </div>
