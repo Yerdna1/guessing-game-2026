@@ -89,8 +89,9 @@ Consider:
 Return ONLY the JSON, no other text.`
 
     const responseText = callClaude(prompt)
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-    const prediction = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
+    // Use RegExp constructor to avoid parsing issues
+    const jsonMatch = responseText.match(new RegExp('\\{[\\s\\S]*\\}', 'g'))
+    const prediction = jsonMatch && jsonMatch.length > 0 ? JSON.parse(jsonMatch[0]) : {}
 
     return {
       homeScore: prediction.homeScore || 2,

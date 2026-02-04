@@ -7,32 +7,32 @@ import Link from 'next/link'
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-50 via-emerald-50/30 to-green-50/20 dark:from-slate-950 dark:via-emerald-950/30 dark:to-green-950/20">
+    <div className="flex min-h-screen flex-col bg-white dark:bg-slate-950">
       <Navbar />
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden hero-gradient text-white">
+        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white">
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
           <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30"></div>
           </div>
 
           <div className="relative section-container">
             <div className="max-w-4xl mx-auto text-center py-24 md:py-32">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-8 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-8 animate-fade-in border-2 border-white/30">
                 <Sparkles className="h-4 w-4" />
-                <span className="text-sm font-medium">IBM & Olympic Games 2026</span>
+                <span className="text-sm font-semibold">IBM & Olympic Games 2026</span>
               </div>
 
               <h1 className="text-5xl md:text-7xl font-extrabold mb-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                Ice Hockey
-                <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-green-200">
+                <span className="text-white drop-shadow-2xl">Ice Hockey</span>
+                <span className="block mt-2 text-4xl md:text-6xl font-extrabold text-white drop-shadow-2xl">
                   Guessing Game
                 </span>
               </h1>
 
-              <p className="text-xl md:text-2xl text-emerald-100 mb-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              <p className="text-xl md:text-2xl text-emerald-50 mb-8 max-w-2xl mx-auto animate-slide-up font-medium" style={{ animationDelay: '0.2s' }}>
                 Predict the scores. Compete with friends. Climb the leaderboard.
               </p>
 
@@ -73,7 +73,7 @@ export default function HomePage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+        <section className="py-16 bg-gradient-to-b from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30">
           <div className="section-container">
             <div className="grid md:grid-cols-3 gap-8">
               {[
@@ -85,10 +85,10 @@ export default function HomePage() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl mb-4 shadow-lg group-hover:shadow-xl transition-shadow">
                     <stat.icon className="h-8 w-8 text-white" />
                   </div>
-                  <div className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-green-700 mb-2">
+                  <div className="text-5xl font-extrabold bg-gradient-to-br from-emerald-600 to-green-700 bg-clip-text mb-2">
                     {stat.number}
                   </div>
-                  <div className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+                  <div className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                     {stat.label}
                   </div>
                 </div>
@@ -98,13 +98,11 @@ export default function HomePage() {
         </section>
 
         {/* How It Works */}
-        <section className="py-24">
+        <section className="py-24 bg-white dark:bg-slate-900">
           <div className="section-container">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-700">
-                  How It Works
-                </span>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900 dark:text-slate-100">
+                How It Works
               </h2>
               <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
                 Three simple steps to join the excitement
@@ -159,15 +157,13 @@ export default function HomePage() {
         </section>
 
         {/* Scoring System */}
-        <section className="py-24 gradient-secondary">
+        <section className="py-24 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-teal-950/30">
           <div className="section-container">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-700">
-                  Scoring System
-                </span>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900 dark:text-slate-100">
+                Scoring System
               </h2>
-              <p className="text-xl text-slate-600 dark:text-slate-400">
+              <p className="text-xl text-slate-600 dark:text-slate-400 font-medium">
                 More accurate predictions = more points
               </p>
             </div>
@@ -205,18 +201,18 @@ export default function HomePage() {
                       bgColor: 'bg-amber-50',
                     },
                   ].map((tier, index) => (
-                    <div key={index} className={`flex items-center justify-between p-5 ${tier.bgColor} dark:bg-opacity-10 rounded-xl border-2 border-transparent hover:border-${tier.textColor.split('-')[1]}-200 transition-all`}>
+                    <div key={index} className={`flex items-center justify-between p-5 rounded-xl border-2 transition-all ${index === 0 ? 'bg-emerald-50 border-emerald-200 hover:border-emerald-400' : index === 1 ? 'bg-blue-50 border-blue-200 hover:border-blue-400' : 'bg-amber-50 border-amber-200 hover:border-amber-400'}`}>
                       <div className="flex items-center gap-4">
                         <div className={`w-16 h-16 ${tier.color} rounded-xl flex items-center justify-center shadow-lg`}>
                           <span className="text-2xl font-bold text-white">{tier.points}</span>
                         </div>
                         <div>
-                          <h4 className={`font-bold text-lg ${tier.textColor}`}>{tier.label}</h4>
+                          <h4 className={`font-bold text-lg ${index === 0 ? 'text-emerald-800' : index === 1 ? 'text-blue-800' : 'text-amber-800'}`}>{tier.label}</h4>
                           <p className="text-sm text-slate-600 dark:text-slate-400">{tier.description}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-green-700">
+                        <span className="text-3xl font-extrabold text-emerald-700 dark:text-emerald-400">
                           {tier.points} pts
                         </span>
                       </div>
@@ -230,8 +226,8 @@ export default function HomePage() {
                       </div>
                       <div>
                         <h4 className="font-bold text-purple-900 dark:text-purple-100 mb-1">Playoff Bonus</h4>
-                        <p className="text-sm text-purple-700 dark:text-purple-300">
-                          All playoff matches include a <span className="font-bold">+1 bonus point</span> added to each scenario.
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                          All playoff matches include a <span className="font-bold text-purple-700 dark:text-purple-300">+1 bonus point</span> added to each scenario.
                           That means exact scores in playoff matches are worth <span className="font-bold">5 points</span>!
                         </p>
                       </div>

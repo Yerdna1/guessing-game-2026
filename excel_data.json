@@ -1,0 +1,548 @@
+{
+  "matches": [
+    {
+      "id": 1,
+      "home_team": "SVK",
+      "away_team": "FIN",
+      "date": "2026-02-11",
+      "time": "16:40:00",
+      "guess_col": 11
+    },
+    {
+      "id": 2,
+      "home_team": "SWE",
+      "away_team": "ITA",
+      "date": "2026-02-11",
+      "time": "16:40:00",
+      "guess_col": 13
+    },
+    {
+      "id": 3,
+      "home_team": "SUI",
+      "away_team": "FRA",
+      "date": "2026-02-12",
+      "time": "12:10:00",
+      "guess_col": 16
+    },
+    {
+      "id": 4,
+      "home_team": "CZE",
+      "away_team": "CAN",
+      "date": "2026-02-12",
+      "time": "12:10:00",
+      "guess_col": 18
+    },
+    {
+      "id": 5,
+      "home_team": "LAT",
+      "away_team": "USA",
+      "date": "2026-02-12",
+      "time": "16:40:00",
+      "guess_col": 20
+    },
+    {
+      "id": 6,
+      "home_team": "GER",
+      "away_team": "DEN",
+      "date": "2026-02-12",
+      "time": "21:10:00",
+      "guess_col": 22
+    },
+    {
+      "id": 7,
+      "home_team": "FIN",
+      "away_team": "SWE",
+      "date": "2026-02-13",
+      "time": "12:10:00",
+      "guess_col": 25
+    },
+    {
+      "id": 8,
+      "home_team": "ITA",
+      "away_team": "SVK",
+      "date": "2026-02-13",
+      "time": "12:10:00",
+      "guess_col": 27
+    },
+    {
+      "id": 9,
+      "home_team": "FRA",
+      "away_team": "CZE",
+      "date": "2026-02-13",
+      "time": "16:40:00",
+      "guess_col": 29
+    },
+    {
+      "id": 10,
+      "home_team": "CAN",
+      "away_team": "SUI",
+      "date": "2026-02-13",
+      "time": "16:40:00",
+      "guess_col": 31
+    },
+    {
+      "id": 11,
+      "home_team": "SWE",
+      "away_team": "SVK",
+      "date": "2026-02-14",
+      "time": "12:10:00",
+      "guess_col": 34
+    },
+    {
+      "id": 12,
+      "home_team": "GER",
+      "away_team": "LAT",
+      "date": "2026-02-14",
+      "time": "12:10:00",
+      "guess_col": 36
+    },
+    {
+      "id": 13,
+      "home_team": "FIN",
+      "away_team": "ITA",
+      "date": "2026-02-14",
+      "time": "16:40:00",
+      "guess_col": 38
+    },
+    {
+      "id": 14,
+      "home_team": "USA",
+      "away_team": "DEN",
+      "date": "2026-02-14",
+      "time": "16:40:00",
+      "guess_col": 40
+    },
+    {
+      "id": 15,
+      "home_team": "SUI",
+      "away_team": "CZE",
+      "date": "2026-02-15",
+      "time": "12:10:00",
+      "guess_col": 43
+    },
+    {
+      "id": 16,
+      "home_team": "CAN",
+      "away_team": "FRA",
+      "date": "2026-02-15",
+      "time": "12:10:00",
+      "guess_col": 45
+    },
+    {
+      "id": 17,
+      "home_team": "DEN",
+      "away_team": "LAT",
+      "date": "2026-02-15",
+      "time": "16:40:00",
+      "guess_col": 47
+    },
+    {
+      "id": 18,
+      "home_team": "USA",
+      "away_team": "GER",
+      "date": "2026-02-15",
+      "time": "19:10:00",
+      "guess_col": 49
+    },
+    {
+      "id": 19,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-17",
+      "time": "12:10:00",
+      "guess_col": 52
+    },
+    {
+      "id": 20,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-17",
+      "time": "12:10:00",
+      "guess_col": 54
+    },
+    {
+      "id": 21,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-17",
+      "time": "16:40:00",
+      "guess_col": 56
+    },
+    {
+      "id": 22,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-17",
+      "time": "16:40:00",
+      "guess_col": 58
+    },
+    {
+      "id": 23,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-18",
+      "time": "12:10:00",
+      "guess_col": 61
+    },
+    {
+      "id": 24,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-18",
+      "time": "12:10:00",
+      "guess_col": 63
+    },
+    {
+      "id": 25,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-18",
+      "time": "16:40:00",
+      "guess_col": 65
+    },
+    {
+      "id": 26,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-18",
+      "time": "18:10:00",
+      "guess_col": 67
+    },
+    {
+      "id": 27,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-20",
+      "time": "16:40:00",
+      "guess_col": 70
+    },
+    {
+      "id": 28,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-20",
+      "time": "16:40:00",
+      "guess_col": 72
+    },
+    {
+      "id": 29,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-21",
+      "time": null,
+      "guess_col": 75
+    },
+    {
+      "id": 30,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-21",
+      "time": null,
+      "guess_col": 78
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Peter Niroda",
+      "email": "peter.niroda@sk.ibm.cm",
+      "country": "Slovakia",
+      "row": 7
+    },
+    {
+      "id": 2,
+      "name": "Marek Kramara",
+      "email": "marek.kramara@sk.ibm.com",
+      "country": "Slovakia",
+      "row": 8
+    },
+    {
+      "id": 3,
+      "name": "Daniel Stransky",
+      "email": "daniel.stransky@ib.com",
+      "country": "Slovakia",
+      "row": 9
+    },
+    {
+      "id": 4,
+      "name": "Peter Juhas",
+      "email": "peter.juhas@ibm.com",
+      "country": "Slovakia",
+      "row": 10
+    },
+    {
+      "id": 5,
+      "name": "Tomas Uhrin",
+      "email": "TomasUhrin1@sk.ibm.com",
+      "country": "Slovakia",
+      "row": 11
+    },
+    {
+      "id": 6,
+      "name": "Filip Oscipovsky",
+      "email": "filip.oscipovsky@sk.ibm.com",
+      "country": "Slovakia",
+      "row": 12
+    },
+    {
+      "id": 7,
+      "name": "Petra Jankurov\u00e1",
+      "email": "petra.jankurova@ibm.com",
+      "country": "Slovakia",
+      "row": 13
+    },
+    {
+      "id": 8,
+      "name": "Martin Kopka",
+      "email": "martin.kopka1@ibm.com",
+      "country": "Slovakia",
+      "row": 14
+    },
+    {
+      "id": 9,
+      "name": "Andrej Galad",
+      "email": "andrej.galad@ibm.com",
+      "country": "Slovakia",
+      "row": 15
+    },
+    {
+      "id": 10,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 16
+    },
+    {
+      "id": 11,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 17
+    },
+    {
+      "id": 12,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 18
+    },
+    {
+      "id": 13,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 19
+    },
+    {
+      "id": 14,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 20
+    },
+    {
+      "id": 15,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 21
+    },
+    {
+      "id": 16,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 22
+    },
+    {
+      "id": 17,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 23
+    },
+    {
+      "id": 18,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 24
+    },
+    {
+      "id": 19,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 25
+    },
+    {
+      "id": 20,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 26
+    },
+    {
+      "id": 21,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 27
+    },
+    {
+      "id": 22,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 28
+    },
+    {
+      "id": 23,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 29
+    },
+    {
+      "id": 24,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 30
+    },
+    {
+      "id": 25,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 31
+    },
+    {
+      "id": 26,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 32
+    },
+    {
+      "id": 27,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 33
+    },
+    {
+      "id": 28,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 34
+    },
+    {
+      "id": 29,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 35
+    },
+    {
+      "id": 30,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 36
+    },
+    {
+      "id": 31,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 37
+    },
+    {
+      "id": 32,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 38
+    },
+    {
+      "id": 33,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 39
+    },
+    {
+      "id": 34,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 40
+    },
+    {
+      "id": 35,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 41
+    },
+    {
+      "id": 36,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 42
+    },
+    {
+      "id": 37,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 43
+    },
+    {
+      "id": 38,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 44
+    },
+    {
+      "id": 39,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 45
+    },
+    {
+      "id": 40,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 46
+    },
+    {
+      "id": 41,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 47
+    },
+    {
+      "id": 42,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 48
+    },
+    {
+      "id": 43,
+      "name": null,
+      "email": null,
+      "country": null,
+      "row": 49
+    }
+  ],
+  "user_guesses": []
+}

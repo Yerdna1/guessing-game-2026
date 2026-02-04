@@ -1,0 +1,1129 @@
+{
+  "teams": [
+    {
+      "code": "CAN",
+      "name": "CAN",
+      "flag": "/flags/can.svg"
+    },
+    {
+      "code": "CZE",
+      "name": "CZE",
+      "flag": "/flags/cze.svg"
+    },
+    {
+      "code": "DEN",
+      "name": "DEN",
+      "flag": "/flags/den.svg"
+    },
+    {
+      "code": "FIN",
+      "name": "FIN",
+      "flag": "/flags/fin.svg"
+    },
+    {
+      "code": "FRA",
+      "name": "FRA",
+      "flag": "/flags/fra.svg"
+    },
+    {
+      "code": "GER",
+      "name": "GER",
+      "flag": "/flags/ger.svg"
+    },
+    {
+      "code": "ITA",
+      "name": "ITA",
+      "flag": "/flags/ita.svg"
+    },
+    {
+      "code": "LAT",
+      "name": "LAT",
+      "flag": "/flags/lat.svg"
+    },
+    {
+      "code": "SUI",
+      "name": "SUI",
+      "flag": "/flags/sui.svg"
+    },
+    {
+      "code": "SVK",
+      "name": "SVK",
+      "flag": "/flags/svk.svg"
+    },
+    {
+      "code": "SWE",
+      "name": "SWE",
+      "flag": "/flags/swe.svg"
+    },
+    {
+      "code": "USA",
+      "name": "USA",
+      "flag": "/flags/usa.svg"
+    }
+  ],
+  "matches": [
+    {
+      "id": 1,
+      "home_team": "SVK",
+      "away_team": "FIN",
+      "date": "2026-02-11",
+      "time": "16:40:00",
+      "guess_col": 11
+    },
+    {
+      "id": 2,
+      "home_team": "SWE",
+      "away_team": "ITA",
+      "date": "2026-02-11",
+      "time": "16:40:00",
+      "guess_col": 13
+    },
+    {
+      "id": 3,
+      "home_team": "SUI",
+      "away_team": "FRA",
+      "date": "2026-02-12",
+      "time": "12:10:00",
+      "guess_col": 16
+    },
+    {
+      "id": 4,
+      "home_team": "CZE",
+      "away_team": "CAN",
+      "date": "2026-02-12",
+      "time": "12:10:00",
+      "guess_col": 18
+    },
+    {
+      "id": 5,
+      "home_team": "LAT",
+      "away_team": "USA",
+      "date": "2026-02-12",
+      "time": "16:40:00",
+      "guess_col": 20
+    },
+    {
+      "id": 6,
+      "home_team": "GER",
+      "away_team": "DEN",
+      "date": "2026-02-12",
+      "time": "21:10:00",
+      "guess_col": 22
+    },
+    {
+      "id": 7,
+      "home_team": "FIN",
+      "away_team": "SWE",
+      "date": "2026-02-13",
+      "time": "12:10:00",
+      "guess_col": 25
+    },
+    {
+      "id": 8,
+      "home_team": "ITA",
+      "away_team": "SVK",
+      "date": "2026-02-13",
+      "time": "12:10:00",
+      "guess_col": 27
+    },
+    {
+      "id": 9,
+      "home_team": "FRA",
+      "away_team": "CZE",
+      "date": "2026-02-13",
+      "time": "16:40:00",
+      "guess_col": 29
+    },
+    {
+      "id": 10,
+      "home_team": "CAN",
+      "away_team": "SUI",
+      "date": "2026-02-13",
+      "time": "16:40:00",
+      "guess_col": 31
+    },
+    {
+      "id": 11,
+      "home_team": "SWE",
+      "away_team": "SVK",
+      "date": "2026-02-14",
+      "time": "12:10:00",
+      "guess_col": 34
+    },
+    {
+      "id": 12,
+      "home_team": "GER",
+      "away_team": "LAT",
+      "date": "2026-02-14",
+      "time": "12:10:00",
+      "guess_col": 36
+    },
+    {
+      "id": 13,
+      "home_team": "FIN",
+      "away_team": "ITA",
+      "date": "2026-02-14",
+      "time": "16:40:00",
+      "guess_col": 38
+    },
+    {
+      "id": 14,
+      "home_team": "USA",
+      "away_team": "DEN",
+      "date": "2026-02-14",
+      "time": "16:40:00",
+      "guess_col": 40
+    },
+    {
+      "id": 15,
+      "home_team": "SUI",
+      "away_team": "CZE",
+      "date": "2026-02-15",
+      "time": "12:10:00",
+      "guess_col": 43
+    },
+    {
+      "id": 16,
+      "home_team": "CAN",
+      "away_team": "FRA",
+      "date": "2026-02-15",
+      "time": "12:10:00",
+      "guess_col": 45
+    },
+    {
+      "id": 17,
+      "home_team": "DEN",
+      "away_team": "LAT",
+      "date": "2026-02-15",
+      "time": "16:40:00",
+      "guess_col": 47
+    },
+    {
+      "id": 18,
+      "home_team": "USA",
+      "away_team": "GER",
+      "date": "2026-02-15",
+      "time": "19:10:00",
+      "guess_col": 49
+    },
+    {
+      "id": 19,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-17",
+      "time": "12:10:00",
+      "guess_col": 52
+    },
+    {
+      "id": 20,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-17",
+      "time": "12:10:00",
+      "guess_col": 54
+    },
+    {
+      "id": 21,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-17",
+      "time": "16:40:00",
+      "guess_col": 56
+    },
+    {
+      "id": 22,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-17",
+      "time": "16:40:00",
+      "guess_col": 58
+    },
+    {
+      "id": 23,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-18",
+      "time": "12:10:00",
+      "guess_col": 61
+    },
+    {
+      "id": 24,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-18",
+      "time": "12:10:00",
+      "guess_col": 63
+    },
+    {
+      "id": 25,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-18",
+      "time": "16:40:00",
+      "guess_col": 65
+    },
+    {
+      "id": 26,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-18",
+      "time": "18:10:00",
+      "guess_col": 67
+    },
+    {
+      "id": 27,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-20",
+      "time": "16:40:00",
+      "guess_col": 70
+    },
+    {
+      "id": 28,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-20",
+      "time": "16:40:00",
+      "guess_col": 72
+    },
+    {
+      "id": 29,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-21",
+      "time": null,
+      "guess_col": 75
+    },
+    {
+      "id": 30,
+      "home_team": "TBD",
+      "away_team": "TBD",
+      "date": "2026-02-21",
+      "time": null,
+      "guess_col": 78
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Peter Niroda",
+      "email": "peter.niroda@sk.ibm.cm",
+      "country": "Slovakia",
+      "row": 7
+    },
+    {
+      "id": 2,
+      "name": "Marek Kramara",
+      "email": "marek.kramara@sk.ibm.com",
+      "country": "Slovakia",
+      "row": 8
+    },
+    {
+      "id": 3,
+      "name": "Daniel Stransky",
+      "email": "daniel.stransky@ib.com",
+      "country": "Slovakia",
+      "row": 9
+    },
+    {
+      "id": 4,
+      "name": "Peter Juhas",
+      "email": "peter.juhas@ibm.com",
+      "country": "Slovakia",
+      "row": 10
+    },
+    {
+      "id": 5,
+      "name": "Tomas Uhrin",
+      "email": "TomasUhrin1@sk.ibm.com",
+      "country": "Slovakia",
+      "row": 11
+    },
+    {
+      "id": 6,
+      "name": "Filip Oscipovsky",
+      "email": "filip.oscipovsky@sk.ibm.com",
+      "country": "Slovakia",
+      "row": 12
+    },
+    {
+      "id": 7,
+      "name": "Petra Jankurov\u00e1",
+      "email": "petra.jankurova@ibm.com",
+      "country": "Slovakia",
+      "row": 13
+    },
+    {
+      "id": 8,
+      "name": "Martin Kopka",
+      "email": "martin.kopka1@ibm.com",
+      "country": "Slovakia",
+      "row": 14
+    },
+    {
+      "id": 9,
+      "name": "Andrej Galad",
+      "email": "andrej.galad@ibm.com",
+      "country": "Slovakia",
+      "row": 15
+    }
+  ],
+  "user_guesses": [
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 1,
+      "home_team": "SVK",
+      "away_team": "FIN",
+      "home_score": 0,
+      "away_score": 4
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 2,
+      "home_team": "SWE",
+      "away_team": "ITA",
+      "home_score": 6,
+      "away_score": 0
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 3,
+      "home_team": "SUI",
+      "away_team": "FRA",
+      "home_score": 5,
+      "away_score": 1
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 4,
+      "home_team": "CZE",
+      "away_team": "CAN",
+      "home_score": 1,
+      "away_score": 4
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 5,
+      "home_team": "LAT",
+      "away_team": "USA",
+      "home_score": 0,
+      "away_score": 4
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 6,
+      "home_team": "GER",
+      "away_team": "DEN",
+      "home_score": 3,
+      "away_score": 2
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 7,
+      "home_team": "FIN",
+      "away_team": "SWE",
+      "home_score": 2,
+      "away_score": 3
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 8,
+      "home_team": "ITA",
+      "away_team": "SVK",
+      "home_score": 1,
+      "away_score": 3
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 9,
+      "home_team": "FRA",
+      "away_team": "CZE",
+      "home_score": 1,
+      "away_score": 4
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 10,
+      "home_team": "CAN",
+      "away_team": "SUI",
+      "home_score": 3,
+      "away_score": 2
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 11,
+      "home_team": "SWE",
+      "away_team": "SVK",
+      "home_score": 4,
+      "away_score": 0
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 12,
+      "home_team": "GER",
+      "away_team": "LAT",
+      "home_score": 3,
+      "away_score": 0
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 13,
+      "home_team": "FIN",
+      "away_team": "ITA",
+      "home_score": 5,
+      "away_score": 0
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 14,
+      "home_team": "USA",
+      "away_team": "DEN",
+      "home_score": 3,
+      "away_score": 0
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 15,
+      "home_team": "SUI",
+      "away_team": "CZE",
+      "home_score": 3,
+      "away_score": 1
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 16,
+      "home_team": "CAN",
+      "away_team": "FRA",
+      "home_score": 5,
+      "away_score": 0
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 17,
+      "home_team": "DEN",
+      "away_team": "LAT",
+      "home_score": 1,
+      "away_score": 2
+    },
+    {
+      "user_id": 1,
+      "user_email": "peter.niroda@sk.ibm.cm",
+      "match_id": 18,
+      "home_team": "USA",
+      "away_team": "GER",
+      "home_score": 4,
+      "away_score": 1
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 1,
+      "home_team": "SVK",
+      "away_team": "FIN",
+      "home_score": 2,
+      "away_score": 1
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 2,
+      "home_team": "SWE",
+      "away_team": "ITA",
+      "home_score": 5,
+      "away_score": 1
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 3,
+      "home_team": "SUI",
+      "away_team": "FRA",
+      "home_score": 3,
+      "away_score": 0
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 4,
+      "home_team": "CZE",
+      "away_team": "CAN",
+      "home_score": 1,
+      "away_score": 3
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 5,
+      "home_team": "LAT",
+      "away_team": "USA",
+      "home_score": 0,
+      "away_score": 3
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 6,
+      "home_team": "GER",
+      "away_team": "DEN",
+      "home_score": 2,
+      "away_score": 1
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 7,
+      "home_team": "FIN",
+      "away_team": "SWE",
+      "home_score": 3,
+      "away_score": 2
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 8,
+      "home_team": "ITA",
+      "away_team": "SVK",
+      "home_score": 1,
+      "away_score": 2
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 9,
+      "home_team": "FRA",
+      "away_team": "CZE",
+      "home_score": 0,
+      "away_score": 3
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 10,
+      "home_team": "CAN",
+      "away_team": "SUI",
+      "home_score": 2,
+      "away_score": 1
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 11,
+      "home_team": "SWE",
+      "away_team": "SVK",
+      "home_score": 3,
+      "away_score": 1
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 12,
+      "home_team": "GER",
+      "away_team": "LAT",
+      "home_score": 2,
+      "away_score": 0
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 13,
+      "home_team": "FIN",
+      "away_team": "ITA",
+      "home_score": 5,
+      "away_score": 1
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 14,
+      "home_team": "USA",
+      "away_team": "DEN",
+      "home_score": 4,
+      "away_score": 0
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 15,
+      "home_team": "SUI",
+      "away_team": "CZE",
+      "home_score": 2,
+      "away_score": 3
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 16,
+      "home_team": "CAN",
+      "away_team": "FRA",
+      "home_score": 6,
+      "away_score": 0
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 17,
+      "home_team": "DEN",
+      "away_team": "LAT",
+      "home_score": 2,
+      "away_score": 3
+    },
+    {
+      "user_id": 3,
+      "user_email": "daniel.stransky@ib.com",
+      "match_id": 18,
+      "home_team": "USA",
+      "away_team": "GER",
+      "home_score": 3,
+      "away_score": 0
+    },
+    {
+      "user_id": 5,
+      "user_email": "TomasUhrin1@sk.ibm.com",
+      "match_id": 1,
+      "home_team": "SVK",
+      "away_team": "FIN",
+      "home_score": 2,
+      "away_score": 2
+    },
+    {
+      "user_id": 5,
+      "user_email": "TomasUhrin1@sk.ibm.com",
+      "match_id": 2,
+      "home_team": "SWE",
+      "away_team": "ITA",
+      "home_score": 4,
+      "away_score": 1
+    },
+    {
+      "user_id": 5,
+      "user_email": "TomasUhrin1@sk.ibm.com",
+      "match_id": 3,
+      "home_team": "SUI",
+      "away_team": "FRA",
+      "home_score": 3,
+      "away_score": 1
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 1,
+      "home_team": "SVK",
+      "away_team": "FIN",
+      "home_score": 1,
+      "away_score": 3
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 2,
+      "home_team": "SWE",
+      "away_team": "ITA",
+      "home_score": 7,
+      "away_score": 1
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 3,
+      "home_team": "SUI",
+      "away_team": "FRA",
+      "home_score": 5,
+      "away_score": 0
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 4,
+      "home_team": "CZE",
+      "away_team": "CAN",
+      "home_score": 4,
+      "away_score": 6
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 5,
+      "home_team": "LAT",
+      "away_team": "USA",
+      "home_score": 1,
+      "away_score": 4
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 6,
+      "home_team": "GER",
+      "away_team": "DEN",
+      "home_score": 5,
+      "away_score": 3
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 7,
+      "home_team": "FIN",
+      "away_team": "SWE",
+      "home_score": 2,
+      "away_score": 4
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 8,
+      "home_team": "ITA",
+      "away_team": "SVK",
+      "home_score": 1,
+      "away_score": 4
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 9,
+      "home_team": "FRA",
+      "away_team": "CZE",
+      "home_score": 1,
+      "away_score": 6
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 10,
+      "home_team": "CAN",
+      "away_team": "SUI",
+      "home_score": 5,
+      "away_score": 3
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 11,
+      "home_team": "SWE",
+      "away_team": "SVK",
+      "home_score": 5,
+      "away_score": 2
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 12,
+      "home_team": "GER",
+      "away_team": "LAT",
+      "home_score": 3,
+      "away_score": 2
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 13,
+      "home_team": "FIN",
+      "away_team": "ITA",
+      "home_score": 4,
+      "away_score": 0
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 14,
+      "home_team": "USA",
+      "away_team": "DEN",
+      "home_score": 5,
+      "away_score": 3
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 15,
+      "home_team": "SUI",
+      "away_team": "CZE",
+      "home_score": 4,
+      "away_score": 3
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 16,
+      "home_team": "CAN",
+      "away_team": "FRA",
+      "home_score": 7,
+      "away_score": 0
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 17,
+      "home_team": "DEN",
+      "away_team": "LAT",
+      "home_score": 3,
+      "away_score": 1
+    },
+    {
+      "user_id": 6,
+      "user_email": "filip.oscipovsky@sk.ibm.com",
+      "match_id": 18,
+      "home_team": "USA",
+      "away_team": "GER",
+      "home_score": 5,
+      "away_score": 2
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 1,
+      "home_team": "SVK",
+      "away_team": "FIN",
+      "home_score": 1,
+      "away_score": 2
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 2,
+      "home_team": "SWE",
+      "away_team": "ITA",
+      "home_score": 8,
+      "away_score": 1
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 3,
+      "home_team": "SUI",
+      "away_team": "FRA",
+      "home_score": 5,
+      "away_score": 1
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 4,
+      "home_team": "CZE",
+      "away_team": "CAN",
+      "home_score": 1,
+      "away_score": 4
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 5,
+      "home_team": "LAT",
+      "away_team": "USA",
+      "home_score": 1,
+      "away_score": 6
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 6,
+      "home_team": "GER",
+      "away_team": "DEN",
+      "home_score": 5,
+      "away_score": 2
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 7,
+      "home_team": "FIN",
+      "away_team": "SWE",
+      "home_score": 1,
+      "away_score": 2
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 8,
+      "home_team": "ITA",
+      "away_team": "SVK",
+      "home_score": 1,
+      "away_score": 5
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 9,
+      "home_team": "FRA",
+      "away_team": "CZE",
+      "home_score": 1,
+      "away_score": 5
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 10,
+      "home_team": "CAN",
+      "away_team": "SUI",
+      "home_score": 3,
+      "away_score": 2
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 11,
+      "home_team": "SWE",
+      "away_team": "SVK",
+      "home_score": 4,
+      "away_score": 2
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 12,
+      "home_team": "GER",
+      "away_team": "LAT",
+      "home_score": 4,
+      "away_score": 1
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 13,
+      "home_team": "FIN",
+      "away_team": "ITA",
+      "home_score": 5,
+      "away_score": 0
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 14,
+      "home_team": "USA",
+      "away_team": "DEN",
+      "home_score": 5,
+      "away_score": 1
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 15,
+      "home_team": "SUI",
+      "away_team": "CZE",
+      "home_score": 2,
+      "away_score": 3
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 16,
+      "home_team": "CAN",
+      "away_team": "FRA",
+      "home_score": 7,
+      "away_score": 0
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 17,
+      "home_team": "DEN",
+      "away_team": "LAT",
+      "home_score": 1,
+      "away_score": 3
+    },
+    {
+      "user_id": 8,
+      "user_email": "martin.kopka1@ibm.com",
+      "match_id": 18,
+      "home_team": "USA",
+      "away_team": "GER",
+      "home_score": 3,
+      "away_score": 2
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 1,
+      "home_team": "SVK",
+      "away_team": "FIN",
+      "home_score": 1,
+      "away_score": 4
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 2,
+      "home_team": "SWE",
+      "away_team": "ITA",
+      "home_score": 6,
+      "away_score": 1
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 3,
+      "home_team": "SUI",
+      "away_team": "FRA",
+      "home_score": 3,
+      "away_score": 2
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 4,
+      "home_team": "CZE",
+      "away_team": "CAN",
+      "home_score": 2,
+      "away_score": 4
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 5,
+      "home_team": "LAT",
+      "away_team": "USA",
+      "home_score": 1,
+      "away_score": 5
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 6,
+      "home_team": "GER",
+      "away_team": "DEN",
+      "home_score": 3,
+      "away_score": 2
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 7,
+      "home_team": "FIN",
+      "away_team": "SWE",
+      "home_score": 2,
+      "away_score": 3
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 8,
+      "home_team": "ITA",
+      "away_team": "SVK",
+      "home_score": 1,
+      "away_score": 4
+    },
+    {
+      "user_id": 9,
+      "user_email": "andrej.galad@ibm.com",
+      "match_id": 9,
+      "home_team": "FRA",
+      "away_team": "CZE",
+      "home_score": 2,
+      "away_score": 5
+    }
+  ]
+}
