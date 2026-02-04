@@ -135,8 +135,9 @@ export async function forgotPassword(formData: FormData) {
   const email = formData.get('email') as string
 
   // Check if user exists
-  const user = await prisma.user.findUnique({
+  const user = await (prisma.user as any).findUnique({
     where: { email },
+    select: { passwordHash: true },
   })
 
   // Always redirect to avoid email enumeration
