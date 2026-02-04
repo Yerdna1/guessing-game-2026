@@ -101,8 +101,9 @@ export async function changePassword(formData: FormData) {
   }
 
   // Get user from database
-  const user = await prisma.user.findUnique({
+  const user = await (prisma.user as any).findUnique({
     where: { email: session.user.email },
+    select: { id: true, passwordHash: true },
   })
 
   if (!user) {
@@ -121,7 +122,7 @@ export async function changePassword(formData: FormData) {
   const newPasswordHash = await bcrypt.hash(newPassword, 10)
 
   // Update user password
-  await prisma.user.update({
+  await (prisma.user as any).update({
     where: { id: user.id },
     data: { passwordHash: newPasswordHash },
   })
