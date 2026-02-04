@@ -99,7 +99,7 @@ export default function ExcelViewPage() {
 
   const saveGuess = async (userId: string, matchId: string, homeScore: number, awayScore: number) => {
     try {
-      const response = await fetch('/api/guesses/update', {
+      const response = await fetch('/api/excel/save-guess', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

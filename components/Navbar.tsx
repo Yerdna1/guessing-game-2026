@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { safeAuth } from '@/lib/safe-auth'
 import { signOutAction } from '@/app/actions'
-import { Trophy, Home, LogOut, User, Settings, LayoutDashboard, Users, Eye, Table } from 'lucide-react'
+import { Trophy, Home, LogOut, User, Settings, LayoutDashboard, Users, Table } from 'lucide-react'
 
 export async function Navbar() {
   const session = await safeAuth()
@@ -37,12 +37,6 @@ export async function Navbar() {
             <Link href="/standings">
               <Button variant="ghost" size="sm" className="nav-link">
                 Standings
-              </Button>
-            </Link>
-            <Link href="/predictions">
-              <Button variant="ghost" size="sm" className="nav-link">
-                <Eye className="h-4 w-4 mr-2" />
-                All Predictions
               </Button>
             </Link>
             <Link href="/excel">
