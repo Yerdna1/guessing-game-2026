@@ -79,7 +79,7 @@ export default function HomePage() {
             <div className="section-container">
               <div className="grid md:grid-cols-3 gap-8">
                 {[
-                  { number: '13', label: 'National Teams', icon: Users },
+                  { number: '12', label: 'National Teams', icon: Users },
                   { number: '30+', label: 'Matches to Predict', icon: Trophy },
                   { number: '17', label: 'Days of Competition', icon: Calendar },
                 ].map((stat, index) => (
