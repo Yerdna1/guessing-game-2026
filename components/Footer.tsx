@@ -112,21 +112,10 @@ export function Footer() {
         <div className="pt-8 border-t border-emerald-200 dark:border-emerald-800">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              © {currentYear} Guessing Game. Built with{' '}
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Next.js 16</span>
-              {' '}and{' '}
-              <span className="text-green-600 dark:text-green-400 font-semibold">Excel-inspired design</span>
+              © {currentYear} Guessing Game. Built by{' '}
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Yerdna</span>
             </p>
             <div className="flex items-center gap-6">
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                GitHub
-              </a>
               <a
                 href="https://olympics.com"
                 target="_blank"
