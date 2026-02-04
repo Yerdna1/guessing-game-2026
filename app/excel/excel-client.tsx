@@ -208,45 +208,43 @@ export default function ExcelClient() {
   const getExcelMatchColumns = () => {
     if (!data) return []
 
-    // Map matches to their column positions based on the Excel structure
+    // Return ALL matches from the database with proper grouping
     const matchColumns: (Match & { columnGroup: number; pairIndex: number })[] = []
-    const matchOrder = [
-      'SVK-FIN', 'SWE-ITA', 'SUI-FRA', 'CZE-CAN', 'LAT-USA', 'GER-DEN',
-      'FIN-SWE', 'ITA-SVK', 'FRA-CZE', 'CAN-SUI', 'SWE-SVK', 'GER-LAT',
-      'FIN-ITA', 'USA-DEN', 'SUI-CZE', 'CAN-FRA', 'DEN-LAT', 'USA-GER'
-    ]
 
-    matchOrder.forEach((key, index) => {
-      const [home, away] = key.split('-')
-      const match = data.matches.find(m =>
-        m.homeTeam.code === home && m.awayTeam.code === away
-      )
-      if (match) {
-        matchColumns.push({
-          ...match,
-          columnGroup: Math.floor(index / 2) + 1, // Group by pairs for dates
-          pairIndex: index % 2
-        })
-      }
+    data.matches.forEach((match, index) => {
+      matchColumns.push({
+        ...match,
+        columnGroup: Math.floor(index / 2) + 1, // Group by pairs for dates
+        pairIndex: index % 2
+      })
     })
 
     return matchColumns
   }
 
   const getDates = () => {
-    const dates = [
-      '11/02/2026', '11/02/2026', '12/02/2026', '13/02/2026',
-      '14/02/2026', '15/02/2026'
-    ]
-    return dates
+    if (!data) return []
+    // Group matches by date and return unique dates with their counts
+    const matchColumns = getExcelMatchColumns()
+    const dateGroups = new Map<string, number>()
+
+    matchColumns.forEach(match => {
+      const date = new Date(match.scheduledTime)
+      const dateStr = date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '/')
+      dateGroups.set(dateStr, (dateGroups.get(dateStr) || 0) + 1)
+    })
+
+    return Array.from(dateGroups.entries())
   }
 
   const getTimes = () => {
-    return [
-      '16:40', '21:10', '12:10', '16:40', '21:10',
-      '12:10', '16:40', '12:10', '16:40', '21:10',
-      '12:10', '16:40', '12:10', '16:40', '19:10', '12:10', '16:40', '19:10'
-    ]
+    if (!data) return []
+    // Generate times dynamically from match times
+    const matchColumns = getExcelMatchColumns()
+    return matchColumns.map(match => {
+      const date = new Date(match.scheduledTime)
+      return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
+    })
   }
 
   if (loading) {
@@ -307,15 +305,15 @@ export default function ExcelClient() {
 
         {/* Excel-style Table */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-x-auto border-2 border-emerald-200 dark:border-emerald-700">
-          <table className="w-full border-collapse" style={{ fontSize: '11px' }}>
+          <table className="w-full border-collapse" style={{ fontSize: '11px', tableLayout: 'fixed', minWidth: '3000px' }}>
             <thead>
               {/* Row 0: Title Row */}
               <tr>
                 <th colSpan={9} className="border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-600 text-white text-left p-2" style={{ fontSize: '14px', fontWeight: 'bold' }}>
                   IBM & OLYMPIC GAMES 2026 Guessing Game
                 </th>
-                {dates.map((date, idx) => (
-                  <th key={`date-${idx}`} colSpan={2} className="border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-600 text-white text-center p-1">
+                {dates.map(([date, count], idx) => (
+                  <th key={`date-${idx}`} colSpan={count * 2} className="border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-600 text-white text-center p-1">
                     {date}
                   </th>
                 ))}
@@ -327,7 +325,7 @@ export default function ExcelClient() {
                   Game Date
                 </th>
                 {times.map((time, idx) => (
-                  <th key={idx} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ fontSize: '11px' }}>
+                  <th key={idx} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ fontSize: '11px', minWidth: '50px' }}>
                     {time}
                   </th>
                 ))}
@@ -339,13 +337,13 @@ export default function ExcelClient() {
                   Matches
                 </th>
                 {matchColumns.map((match, idx) => (
-                  <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1">
+                  <th key={match.id} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ minWidth: '45px' }}>
                     {match.homeTeam.code}
                   </th>
                 ))}
                 {/* Empty Points columns */}
                 {matchColumns.map((_, idx) => (
-                  <th key={`pts-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1">
+                  <th key={`pts-${idx}`} className="border border-emerald-400 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100 text-center p-1" style={{ minWidth: '55px' }}>
                     Points
                   </th>
                 ))}
@@ -461,7 +459,7 @@ export default function ExcelClient() {
 
                       return (
                         <React.Fragment key={match.id}>
-                          <td className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${isEditing ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+                          <td className={`border border-emerald-300 dark:border-emerald-700 p-2 text-center ${isEditing ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-blue-50 dark:bg-blue-900/20'}`} style={{ minWidth: '45px' }}>
                             <div className="flex items-center justify-center gap-1">
                               <input
                                 type="text"
@@ -486,7 +484,7 @@ export default function ExcelClient() {
                               />
                             </div>
                           </td>
-                          <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100">
+                          <td className="border border-emerald-300 dark:border-emerald-700 p-2 text-center text-gray-900 dark:text-gray-100" style={{ minWidth: '55px' }}>
                             {/* Points column - would show points earned */}
                             {guess && guess.points ? guess.points : '-'}
                           </td>
