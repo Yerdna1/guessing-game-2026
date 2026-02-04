@@ -3,6 +3,7 @@
 import { signIn, signOut } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import * as bcrypt from 'bcryptjs'
 import { randomBytes, createHash } from 'crypto'
 
@@ -14,7 +15,15 @@ export async function signInWithCredentials(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  await signIn('credentials', { email, password, redirectTo: '/dashboard' })
+  try {
+    await signIn('credentials', { email, password, redirectTo: '/dashboard' })
+  } catch (error) {
+    // Handle NextAuth errors and redirect appropriately
+    if (error instanceof Error) {
+      console.error('Sign in error:', error.message)
+    }
+    throw error
+  }
 }
 
 export async function signInWithGoogle() {
@@ -218,4 +227,95 @@ export async function resetPassword(formData: FormData) {
 
   // Redirect to login with success message
   redirect('/login?reset-success=true')
+}
+
+export async function updateMatchResult(formData: FormData) {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized')
+  }
+
+  const matchId = formData.get('matchId') as string
+  const homeScore = formData.get('homeScore') as string
+  const awayScore = formData.get('awayScore') as string
+  const status = formData.get('status') as string
+
+  if (!matchId) {
+    throw new Error('Match ID is required')
+  }
+
+  const data: any = {}
+  if (homeScore !== '') data.homeScore = parseInt(homeScore)
+  else data.homeScore = null
+  if (awayScore !== '') data.awayScore = parseInt(awayScore)
+  else data.awayScore = null
+  if (status) data.status = status
+
+  await prisma.match.update({
+    where: { id: matchId },
+    data,
+  })
+
+  // Auto-recalculate rankings when match is completed or scores are updated
+  if (status === 'COMPLETED' || homeScore !== '' || awayScore !== '') {
+    const { recalculateRankings } = await import('@/lib/scoring')
+    await recalculateRankings('default')
+  }
+
+  // Revalidate pages to show updated data
+  revalidatePath('/admin')
+  revalidatePath('/standings')
+  revalidatePath('/dashboard')
+  revalidatePath('/matches')
+}
+
+export async function updateRules(formData: FormData) {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized')
+  }
+
+  const title = formData.get('title') as string
+  const description = formData.get('description') as string
+  const pointsExact = formData.get('pointsExact') as string
+  const pointsWinner = formData.get('pointsWinner') as string
+  const pointsOneTeam = formData.get('pointsOneTeam') as string
+  const playoffBonus = formData.get('playoffBonus') as string
+  const ruleId = formData.get('ruleId') as string
+
+  if (!title || !description) {
+    throw new Error('Title and description are required')
+  }
+
+  const data: any = {
+    title,
+    description,
+    pointsExact: pointsExact ? parseInt(pointsExact) : 4,
+    pointsWinner: pointsWinner ? parseInt(pointsWinner) : 1,
+    pointsOneTeam: pointsOneTeam ? parseInt(pointsOneTeam) : 2,
+    playoffBonus: playoffBonus ? parseInt(playoffBonus) : 1,
+  }
+
+  if (ruleId) {
+    // Update existing rule
+    await prisma.rule.update({
+      where: { id: ruleId },
+      data,
+    })
+  } else {
+    // Create new rule
+    await prisma.rule.create({
+      data: {
+        ...data,
+        tournamentId: 'default',
+      },
+    })
+  }
+
+  revalidatePath('/admin')
+  revalidatePath('/rules')
 }
