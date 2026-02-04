@@ -1,10 +1,40 @@
 import { PrismaClient, MatchStage, TournamentStatus, UserRole } from '@prisma/client'
-import * as bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
+// Type definitions for Excel data
+interface ExcelTeam {
+  code: string
+  name: string
+  flagUrl: string
+}
+
+interface ExcelMatch {
+  homeTeam: string
+  awayTeam: string
+  date: string
+  time: string
+  venue: string
+  stage?: MatchStage
+  playoff?: boolean
+}
+
+interface ExcelUser {
+  name: string
+  email: string
+  country: string
+}
+
+interface ExcelGuess {
+  userEmail: string
+  homeTeam: string
+  awayTeam: string
+  homeScore: number
+  awayScore: number
+}
+
 // Data imported from Excel file
-const excelTeams = [
+const excelTeams: ExcelTeam[] = [
   { code: 'CAN', name: 'Canada', flagUrl: 'https://flagcdn.com/w80/ca.png' },
   { code: 'CZE', name: 'Czechia', flagUrl: 'https://flagcdn.com/w80/cz.png' },
   { code: 'DEN', name: 'Denmark', flagUrl: 'https://flagcdn.com/w80/dk.png' },
@@ -19,7 +49,7 @@ const excelTeams = [
   { code: 'USA', name: 'United States', flagUrl: 'https://flagcdn.com/w80/us.png' },
 ]
 
-const excelMatches = [
+const excelMatches: ExcelMatch[] = [
   { homeTeam: 'SVK', awayTeam: 'FIN', date: '2026-02-11', time: '16:40', venue: 'Milan Ice Palace' },
   { homeTeam: 'SWE', awayTeam: 'ITA', date: '2026-02-11', time: '16:40', venue: 'Milan Ice Palace' },
   { homeTeam: 'SUI', awayTeam: 'FRA', date: '2026-02-12', time: '12:10', venue: 'Cortina Olympic Stadium' },
@@ -40,19 +70,16 @@ const excelMatches = [
   { homeTeam: 'USA', awayTeam: 'GER', date: '2026-02-15', time: '19:10', venue: 'Milan Ice Palace' },
   // Playoff TBD matches
   { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-17', time: '12:10', venue: 'Milan Ice Palace', stage: 'QUARTERFINAL' as MatchStage, playoff: true },
-  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-17', time: '12:10', venue: 'Milan Ice Palace', stage: 'QUARTERFINAL' as MatchStage, playoff: true },
   { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-17', time: '16:40', venue: 'Milan Ice Palace', stage: 'QUARTERFINAL' as MatchStage, playoff: true },
-  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-17', time: '16:40', venue: 'Milan Ice Palace', stage: 'QUARTERFINAL' as MatchStage, playoff: true },
-  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-18', time: '12:10', venue: 'Cortina Olympic Stadium', stage: 'SEMIFINAL' as MatchStage, playoff: true },
-  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-18', time: '12:10', venue: 'Cortina Olympic Stadium', stage: 'SEMIFINAL' as MatchStage, playoff: true },
-  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-18', time: '16:40', venue: 'Milan Ice Palace', stage: 'SEMIFINAL' as MatchStage, playoff: true },
-  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-18', time: '18:10', venue: 'Milan Ice Palace', stage: 'FINAL' as MatchStage, playoff: true },
+  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-18', time: '12:10', venue: 'Cortina Olympic Stadium', stage: 'QUARTERFINAL' as MatchStage, playoff: true },
+  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-18', time: '16:40', venue: 'Cortina Olympic Stadium', stage: 'QUARTERFINAL' as MatchStage, playoff: true },
+  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-19', time: '12:10', venue: 'Milan Ice Palace', stage: 'SEMIFINAL' as MatchStage, playoff: true },
+  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-19', time: '16:40', venue: 'Milan Ice Palace', stage: 'SEMIFINAL' as MatchStage, playoff: true },
   { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-20', time: '16:40', venue: 'Milan Ice Palace', stage: 'BRONZE_MATCH' as MatchStage, playoff: true },
-  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-20', time: '16:40', venue: 'Milan Ice Palace', stage: 'FINAL' as MatchStage, playoff: true },
-  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-21', time: '00:00', venue: 'Cortina Olympic Stadium', stage: 'FINAL' as MatchStage, playoff: true },
+  { homeTeam: 'TBD', awayTeam: 'TBD', date: '2026-02-21', time: '16:40', venue: 'Cortina Olympic Stadium', stage: 'FINAL' as MatchStage, playoff: true },
 ]
 
-const excelUsers = [
+const excelUsers: ExcelUser[] = [
   { name: 'Peter Niroda', email: 'peter.niroda@sk.ibm.cm', country: 'Slovakia' },
   { name: 'Marek Kramara', email: 'marek.kramara@sk.ibm.com', country: 'Slovakia' },
   { name: 'Daniel Stransky', email: 'daniel.stransky@ib.com', country: 'Slovakia' },
@@ -65,7 +92,7 @@ const excelUsers = [
 ]
 
 // User guesses from Excel: {userEmail, homeTeam, awayTeam, homeScore, awayScore}
-const excelGuesses = [
+const excelGuesses: ExcelGuess[] = [
   // Peter Niroda
   { userEmail: 'peter.niroda@sk.ibm.cm', homeTeam: 'SVK', awayTeam: 'FIN', homeScore: 0, awayScore: 4 },
   { userEmail: 'peter.niroda@sk.ibm.cm', homeTeam: 'SWE', awayTeam: 'ITA', homeScore: 6, awayScore: 0 },
@@ -215,7 +242,10 @@ async function main() {
     const awayTeamId = teamsMap[match.awayTeam]
 
     if (homeTeamId && awayTeamId) {
-      const scheduledTime = new Date(`${match.date}T${match.time}:00`)
+      // Parse date with explicit timezone (CET = GMT+1)
+      const [year, month, day] = match.date.split('-').map(Number)
+      const [hours, minutes] = match.time.split(':').map(Number)
+      const scheduledTime = new Date(Date.UTC(year, month - 1, day, hours - 1, minutes)) // Convert CET to UTC
 
       const created = await prisma.match.create({
         data: {
