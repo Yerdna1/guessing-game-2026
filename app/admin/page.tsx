@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Settings, RefreshCw, Save, CheckCircle2 } from 'lucide-react'
-import { recalculateRankingsAction, updateMatchResult, updateRules } from '@/app/actions'
+import { Settings, RefreshCw, Save, CheckCircle2, Trash2, Plus, Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react'
+import { recalculateRankingsAction, updateMatchResult, updateRules, createMatch, deleteMatch } from '@/app/actions'
 
 export default async function AdminPage() {
   const session = await safeAuth()
@@ -26,8 +26,13 @@ export default async function AdminPage() {
       awayTeam: true,
     },
     orderBy: {
-      scheduledTime: 'asc',
+      matchNumber: 'asc',
     },
+  })
+
+  // Get all teams for the create match form
+  const teams = await prisma.team.findMany({
+    orderBy: { code: 'asc' }
   })
 
   // Get tournament stats
@@ -235,20 +240,154 @@ export default async function AdminPage() {
             <CardHeader>
               <CardTitle>All Matches</CardTitle>
               <CardDescription>
-                Update scores and match status
+                Create, edit, delete matches and update scores
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Create New Match Form */}
+              <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-3 mb-4">
+                  <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100">Create New Match</h3>
+                </div>
+                <form action={createMatch} className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="homeTeam">Home Team</Label>
+                    <select
+                      id="homeTeam"
+                      name="homeTeamId"
+                      required
+                      className="w-full px-3 py-2 border border-input rounded-md bg-background"
+                    >
+                      <option value="">Select home team</option>
+                      {teams.map((team) => (
+                        <option key={team.id} value={team.id}>
+                          {team.code} - {team.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="awayTeam">Away Team</Label>
+                    <select
+                      id="awayTeam"
+                      name="awayTeamId"
+                      required
+                      className="w-full px-3 py-2 border border-input rounded-md bg-background"
+                    >
+                      <option value="">Select away team</option>
+                      {teams.map((team) => (
+                        <option key={team.id} value={team.id}>
+                          {team.code} - {team.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="scheduledDate">Date</Label>
+                    <Input
+                      id="scheduledDate"
+                      name="scheduledDate"
+                      type="date"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="scheduledTime">Time</Label>
+                    <Input
+                      id="scheduledTime"
+                      name="scheduledTime"
+                      type="time"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="venue">Venue</Label>
+                    <Input
+                      id="venue"
+                      name="venue"
+                      placeholder="e.g., Milano Santagiulia"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="stage">Stage</Label>
+                    <select
+                      id="stage"
+                      name="stage"
+                      className="w-full px-3 py-2 border border-input rounded-md bg-background"
+                    >
+                      <option value="GROUP_STAGE">Group Stage</option>
+                      <option value="QUARTERFINAL">Quarterfinal</option>
+                      <option value="SEMIFINAL">Semifinal</option>
+                      <option value="BRONZE_MATCH">Bronze Match</option>
+                      <option value="FINAL">Final</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="isPlayoff"
+                      name="isPlayoff"
+                      value="true"
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="isPlayoff" className="cursor-pointer">Playoff Match</Label>
+                  </div>
+
+                  <div className="md:col-span-2 flex justify-end">
+                    <Button type="submit" className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Create Match
+                    </Button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Existing Matches */}
               <div className="space-y-4">
                 {matches.map((match) => (
-                  <form
+                  <div
                     key={match.id}
-                    action={updateMatchResult}
                     className="border rounded-lg p-4 bg-muted/30 hover:bg-muted/50 transition-colors"
                   >
-                    <input type="hidden" name="matchId" value={match.id} />
+                    {/* Match Header with Number and Delete */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-bold rounded-full shadow-md">
+                          #{match.matchNumber}
+                        </span>
+                        <span className="text-sm font-semibold text-muted-foreground">
+                          {new Date(match.scheduledTime).toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                      <form action={deleteMatch} className="inline">
+                        <input type="hidden" name="matchId" value={match.id} />
+                        <Button
+                          type="submit"
+                          size="sm"
+                          variant="destructive"
+                          className="gap-1"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          Delete
+                        </Button>
+                      </form>
+                    </div>
 
-                    <div className="flex items-center justify-between flex-wrap gap-4">
+                    <form action={updateMatchResult}>
+                      <input type="hidden" name="matchId" value={match.id} />
+
+                      <div className="flex items-center justify-between flex-wrap gap-4">
                       {/* Teams */}
                       <div className="flex items-center gap-6 flex-1 min-w-[300px]">
                         <div className="text-center">
@@ -340,12 +479,25 @@ export default async function AdminPage() {
 
                     {/* Match Info */}
                     <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>{match.scheduledTime.toLocaleDateString()}</span>
-                      <span>{match.stage.replace(/_/g, ' ')}</span>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{new Date(match.scheduledTime).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: false
+                        })}</span>
+                      </div>
+                      <span className="text-purple-600 font-semibold">{match.stage.replace(/_/g, ' ')}</span>
                       {match.isPlayoff && <span className="text-purple-600 font-semibold">Playoff</span>}
-                      {match.venue && <span>{match.venue}</span>}
+                      {match.venue && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span>{match.venue}</span>
+                        </div>
+                      )}
                     </div>
                   </form>
+                </div>
                 ))}
               </div>
             </CardContent>

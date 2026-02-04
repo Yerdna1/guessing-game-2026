@@ -84,7 +84,7 @@ async function updateMatchSchedule() {
           awayTeamId: awayTeam.id,
           scheduledTime,
           venue: matchData.venue,
-          stage: matchData.stage,
+          stage: matchData.stage as any,
           status: 'SCHEDULED',
           isPlayoff: false,
           matchNumber

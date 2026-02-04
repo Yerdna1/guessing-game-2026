@@ -381,3 +381,86 @@ export async function syncFromExcelUpload(formData: FormData) {
     }
   }
 }
+
+export async function createMatch(formData: FormData) {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized')
+  }
+
+  const homeTeamId = formData.get('homeTeamId') as string
+  const awayTeamId = formData.get('awayTeamId') as string
+  const scheduledDate = formData.get('scheduledDate') as string
+  const scheduledTime = formData.get('scheduledTime') as string
+  const venue = formData.get('venue') as string
+  const stage = formData.get('stage') as string
+  const isPlayoff = formData.get('isPlayoff') === 'true'
+
+  if (!homeTeamId || !awayTeamId || !scheduledDate || !scheduledTime) {
+    throw new Error('Missing required fields')
+  }
+
+  // Combine date and time
+  const scheduledTimeDate = new Date(`${scheduledDate}T${scheduledTime}`)
+
+  // Get the next match number
+  const maxMatchNumber = await prisma.match.findFirst({
+    where: { tournamentId: 'default' },
+    orderBy: { matchNumber: 'desc' },
+    select: { matchNumber: true }
+  })
+
+  const matchNumber = (maxMatchNumber?.matchNumber ?? 0) + 1
+
+  // Create match
+  await prisma.match.create({
+    data: {
+      tournamentId: 'default',
+      homeTeamId,
+      awayTeamId,
+      scheduledTime: scheduledTimeDate,
+      venue: venue || null,
+      stage: (stage as any) || 'GROUP_STAGE',
+      isPlayoff,
+      status: 'SCHEDULED',
+      matchNumber
+    }
+  })
+
+  revalidatePath('/admin')
+  revalidatePath('/matches')
+  revalidatePath('/excel')
+  revalidatePath('/dashboard')
+}
+
+export async function deleteMatch(formData: FormData) {
+  const { auth } = await import('@/lib/auth')
+  const session = await auth()
+
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized')
+  }
+
+  const matchId = formData.get('matchId') as string
+
+  if (!matchId) {
+    throw new Error('Match ID is required')
+  }
+
+  // Delete all guesses for this match first
+  await prisma.guess.deleteMany({
+    where: { matchId }
+  })
+
+  // Delete the match
+  await prisma.match.delete({
+    where: { id: matchId }
+  })
+
+  revalidatePath('/admin')
+  revalidatePath('/matches')
+  revalidatePath('/excel')
+  revalidatePath('/dashboard')
+}
