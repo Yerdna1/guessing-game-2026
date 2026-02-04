@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Pagination } from '@/components/ui/pagination'
 import { CheckCircle2, Clock, MapPin } from 'lucide-react'
 import { DeleteMatchButton } from '@/components/DeleteMatchButton'
+import { updateMatchResult } from '@/app/actions'
 
 interface Match {
   id: string
@@ -74,7 +75,7 @@ export function AdminMatchesList({ matches }: AdminMatchesListProps) {
               />
             </div>
 
-            <form action="/api/admin/update-match" method="POST">
+            <form action={updateMatchResult}>
               <input type="hidden" name="matchId" value={match.id} />
 
               <div className="flex items-center justify-between flex-wrap gap-4">
