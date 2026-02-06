@@ -657,6 +657,7 @@ export async function createUser(formData: FormData) {
       country: country || null,
       role: (role as any) || 'USER',
       passwordHash,
+      emailVerified: passwordHash ? new Date() : null,
     },
   })
 
