@@ -61,18 +61,23 @@ function parseExcelDate(dateStr: string, timeStr: string): Date {
   return date
 }
 
-// Match stage based on column position and date
-function getMatchStage(columnIndex: number, dateStr: string): 'GROUP_STAGE' | 'QUARTERFINAL' | 'SEMIFINAL' | 'BRONZE_MATCH' | 'FINAL' {
-  // Detect playoff matches based on date or position
-  // February 20+ = playoffs
+// Match stage based on date
+function getMatchStage(dateStr: string, columnIndex: number, datePositions: { col: number; date: string }[]): 'GROUP_STAGE' | 'QUARTERFINAL' | 'SEMIFINAL' | 'BRONZE_MATCH' | 'FINAL' {
   try {
-    const matchDate = parseExcelDate(dateStr, '00:00')
-    if (matchDate >= new Date('2026-02-20')) {
-      // Determine specific stage based on column position
-      if (columnIndex >= 35) return 'FINAL'
-      if (columnIndex >= 30) return 'BRONZE_MATCH'
-      if (columnIndex >= 25) return 'SEMIFINAL'
-      return 'QUARTERFINAL'
+    const parts = dateStr.split('-')
+    const day = parseInt(parts[0])
+    const month = parts[1]
+
+    if (month !== 'Feb' || day < 17) return 'GROUP_STAGE'
+    if (day <= 18) return 'QUARTERFINAL'
+    if (day === 20) return 'SEMIFINAL'
+    if (day >= 21) {
+      // Feb 21 has Bronze match and Final - distinguish by position
+      const feb21Positions = datePositions.filter(d => d.date.startsWith('21-Feb'))
+      if (feb21Positions.length >= 2 && columnIndex >= feb21Positions[feb21Positions.length - 1].col) {
+        return 'FINAL'
+      }
+      return 'BRONZE_MATCH'
     }
   } catch {
     // If date parsing fails, default to group stage
@@ -168,33 +173,71 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
     const homeTeamRow = 2
     const awayTeamRow = 4
 
-    // Date positions based on the actual Excel
-    const dateColumns = [10, 15, 24]
+    // Determine the maximum column to scan
+    const maxCol = Math.max(
+      jsonData[dateRow]?.length || 0,
+      jsonData[homeTeamRow]?.length || 0,
+      jsonData[awayTeamRow]?.length || 0,
+      jsonData[timeRow]?.length || 0
+    )
 
-    // Extract all match columns systematically
-    for (let col = 10; col < 40; col++) {
+    // Dynamically detect all date column positions from the date row
+    const datePositions: { col: number; date: string }[] = []
+    for (let col = 10; col < maxCol; col++) {
+      const val = jsonData[dateRow]?.[col]
+      if (val && typeof val === 'string' && val.match(/\d+-\w+-\d+/)) {
+        datePositions.push({ col, date: val.trim() })
+      }
+    }
+
+    // Extract all match columns - scan the full range
+    // Track the last seen time to handle merged time cells in Excel
+    let lastSeenTime: string | null = null
+
+    for (let col = 10; col < maxCol; col++) {
+      // Update last seen time from the time row
+      const timeVal = jsonData[timeRow]?.[col]
+      if (timeVal && typeof timeVal === 'string' && /^\d{1,2}:\d{2}$/.test(timeVal.trim())) {
+        lastSeenTime = timeVal.trim()
+      }
+
       const homeTeam = jsonData[homeTeamRow]?.[col]
       const awayTeam = jsonData[awayTeamRow]?.[col]
-      const time = jsonData[timeRow]?.[col]
 
-      if (homeTeam && awayTeam && time && homeTeam !== 'Points' && awayTeam !== 'Points') {
-        // Find the appropriate date
-        let date = '11-Feb-2026' // default
-        for (let i = dateColumns.length - 1; i >= 0; i--) {
-          if (col >= dateColumns[i] && jsonData[dateRow]?.[dateColumns[i]]) {
-            date = jsonData[dateRow][dateColumns[i]]
-            break
-          }
+      if (!homeTeam || !awayTeam) continue
+
+      const homeStr = String(homeTeam).trim()
+      const awayStr = String(awayTeam).trim()
+
+      // Skip non-team columns (Points headers, empty, labels)
+      if (!homeStr || !awayStr) continue
+      if (homeStr === 'Points' || awayStr === 'Points') continue
+      if (homeStr === 'Matches' || homeStr === 'Results:') continue
+
+      // Use the time at this column, or inherit from the last seen time
+      // (Excel merges time cells when multiple matches share a time slot)
+      const matchTime = (timeVal && typeof timeVal === 'string' && /^\d{1,2}:\d{2}$/.test(timeVal.trim()))
+        ? timeVal.trim()
+        : lastSeenTime
+
+      if (!matchTime) continue
+
+      // Find the appropriate date from dynamically detected positions
+      let date = '11-Feb-2026' // default
+      for (let i = datePositions.length - 1; i >= 0; i--) {
+        if (col >= datePositions[i].col) {
+          date = datePositions[i].date
+          break
         }
-
-        matches.push({
-          home: homeTeam,
-          away: awayTeam,
-          date: date,
-          time: time,
-          columnIndex: col
-        })
       }
+
+      matches.push({
+        home: homeStr,
+        away: awayStr,
+        date: date,
+        time: matchTime,
+        columnIndex: col
+      })
     }
 
     // Ensure all teams exist
@@ -240,7 +283,7 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
           where: { id: match.id },
           data: {
             scheduledTime,
-            stage: getMatchStage(matchData.columnIndex, matchData.date),
+            stage: getMatchStage(matchData.date, matchData.columnIndex, datePositions),
             venue: 'Milano/Cortina'
           }
         })
@@ -258,9 +301,9 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
               awayTeamId: awayTeam.id,
               scheduledTime,
               venue: 'Milano/Cortina',
-              stage: getMatchStage(matchData.columnIndex, matchData.date),
+              stage: getMatchStage(matchData.date, matchData.columnIndex, datePositions),
               status: 'SCHEDULED',
-              isPlayoff: getMatchStage(matchData.columnIndex, matchData.date) !== 'GROUP_STAGE'
+              isPlayoff: getMatchStage(matchData.date, matchData.columnIndex, datePositions) !== 'GROUP_STAGE'
             }
           })
           result.matchesCreated++
