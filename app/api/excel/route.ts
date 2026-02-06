@@ -96,8 +96,12 @@ export async function GET(request: NextRequest) {
     })
 
     // Calculate statistics for each user
-    const usersWithStats = usersRaw.map(user => {
-      const userGuesses = allGuesses.filter(g => g.userId === user.id)
+    type UserRow = typeof usersRaw[number]
+    type GuessRow = typeof allGuesses[number]
+    type MatchRow = typeof matches[number]
+
+    const usersWithStats = usersRaw.map((user: UserRow) => {
+      const userGuesses = allGuesses.filter((g: GuessRow) => g.userId === user.id)
 
       // Count filled matches
       const filledMatches = userGuesses.length
@@ -109,7 +113,7 @@ export async function GET(request: NextRequest) {
       let accurateGuesses = 0
 
       for (const guess of userGuesses) {
-        const match = matches.find(m => m.id === guess.matchId)
+        const match = matches.find((m: MatchRow) => m.id === guess.matchId)
         if (!match) continue
 
         const result = calculateGuessPoints(
@@ -144,31 +148,45 @@ export async function GET(request: NextRequest) {
     })
 
     // Sort users based on the requested criteria
-    const users = usersWithStats.sort((a, b) => {
+    // All comparisons computed in ascending order, then flipped by sortOrder
+    type UserWithStats = typeof usersWithStats[number]
+
+    const users = usersWithStats.sort((a: UserWithStats, b: UserWithStats) => {
       let comparison = 0
 
       switch (sortBy) {
         case 'totalPoints':
-          comparison = b.totalPoints - a.totalPoints
+          comparison = a.totalPoints - b.totalPoints
           break
         case 'accurateGuesses':
-          comparison = b.accurateGuesses - a.accurateGuesses
+          comparison = a.accurateGuesses - b.accurateGuesses
           break
         case 'filledMatches':
-          comparison = b.filledMatches - a.filledMatches
+          comparison = a.filledMatches - b.filledMatches
+          break
+        case 'groupStagePoints':
+          comparison = a.groupStagePoints - b.groupStagePoints
+          break
+        case 'playoffPoints':
+          comparison = a.playoffPoints - b.playoffPoints
+          break
+        case 'email':
+          comparison = (a.email || '').localeCompare(b.email || '')
           break
         case 'name':
-        default:
           comparison = (a.name || '').localeCompare(b.name || '')
+          break
+        default:
+          comparison = a.totalPoints - b.totalPoints
           break
       }
 
       // Apply secondary sort (by name) for ties
-      if (comparison === 0) {
+      if (comparison === 0 && sortBy !== 'name') {
         comparison = (a.name || '').localeCompare(b.name || '')
       }
 
-      return sortOrder === 'asc' ? -comparison : comparison
+      return sortOrder === 'asc' ? comparison : -comparison
     })
 
     return NextResponse.json({

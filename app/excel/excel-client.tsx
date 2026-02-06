@@ -486,11 +486,43 @@ export default function ExcelClient() {
                 <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '40px' }}>
                   ID
                 </th>
-                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-left font-bold" style={{ width: '150px' }}>
-                  Name
+                <th
+                  className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-left font-bold cursor-pointer hover:bg-emerald-300 dark:hover:bg-emerald-700 transition-colors select-none"
+                  style={{ width: '150px' }}
+                  onClick={() => {
+                    if (sortBy === 'name') {
+                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                    } else {
+                      setSortBy('name')
+                      setSortOrder('asc')
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-1">
+                    Name
+                    {sortBy === 'name' && (
+                      <span className="text-xs">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
                 </th>
-                <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-left font-bold" style={{ width: '200px' }}>
-                  Mail
+                <th
+                  className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-left font-bold cursor-pointer hover:bg-emerald-300 dark:hover:bg-emerald-700 transition-colors select-none"
+                  style={{ width: '200px' }}
+                  onClick={() => {
+                    if (sortBy === 'email') {
+                      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                    } else {
+                      setSortBy('email')
+                      setSortOrder('asc')
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-1">
+                    Mail
+                    {sortBy === 'email' && (
+                      <span className="text-xs">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
                 </th>
                 <th className="border-2 border-emerald-400 dark:border-emerald-600 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 p-2 text-center font-bold" style={{ width: '100px' }}>
                   Country

@@ -20,6 +20,7 @@ interface MatchData {
   date: string
   time: string
   columnIndex: number
+  matchNumber: number
   matchId?: string
 }
 
@@ -236,7 +237,8 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
         away: awayStr,
         date: date,
         time: matchTime,
-        columnIndex: col
+        columnIndex: col,
+        matchNumber: matches.length + 1
       })
     }
 
@@ -264,18 +266,55 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
       }
     }
 
+    // Clean up stale TBD matches from previous imports (those without matchNumber)
+    const tbdTeam = await prisma.team.findUnique({ where: { code: 'TBD' } })
+    if (tbdTeam) {
+      const staleTBDMatches = await prisma.match.findMany({
+        where: {
+          tournamentId: 'default',
+          homeTeamId: tbdTeam.id,
+          awayTeamId: tbdTeam.id,
+          matchNumber: null
+        },
+        select: { id: true }
+      })
+      if (staleTBDMatches.length > 0) {
+        const staleIds = staleTBDMatches.map((m: { id: string }) => m.id)
+        await prisma.guess.deleteMany({
+          where: { matchId: { in: staleIds } }
+        })
+        await prisma.match.deleteMany({
+          where: { id: { in: staleIds } }
+        })
+      }
+    }
+
     // Update or create matches
     for (const matchData of matches) {
       const scheduledTime = parseExcelDate(matchData.date, matchData.time)
+      const stage = getMatchStage(matchData.date, matchData.columnIndex, datePositions)
+      const isTBD = matchData.home === 'TBD' || matchData.away === 'TBD'
 
-      // Find existing match by teams and tournament
-      let match = await prisma.match.findFirst({
-        where: {
-          tournamentId: 'default',
-          homeTeam: { code: matchData.home },
-          awayTeam: { code: matchData.away }
-        }
-      })
+      // Find existing match:
+      // - For known teams: match by team codes (unique pair per tournament)
+      // - For TBD playoff matches: match by matchNumber (since all are TBD vs TBD)
+      let match
+      if (isTBD) {
+        match = await prisma.match.findFirst({
+          where: {
+            tournamentId: 'default',
+            matchNumber: matchData.matchNumber
+          }
+        })
+      } else {
+        match = await prisma.match.findFirst({
+          where: {
+            tournamentId: 'default',
+            homeTeam: { code: matchData.home },
+            awayTeam: { code: matchData.away }
+          }
+        })
+      }
 
       if (match) {
         // Update existing match
@@ -283,8 +322,9 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
           where: { id: match.id },
           data: {
             scheduledTime,
-            stage: getMatchStage(matchData.date, matchData.columnIndex, datePositions),
-            venue: 'Milano/Cortina'
+            stage,
+            venue: 'Milano/Cortina',
+            matchNumber: matchData.matchNumber
           }
         })
         result.matchesUpdated++
@@ -301,9 +341,10 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
               awayTeamId: awayTeam.id,
               scheduledTime,
               venue: 'Milano/Cortina',
-              stage: getMatchStage(matchData.date, matchData.columnIndex, datePositions),
+              stage,
               status: 'SCHEDULED',
-              isPlayoff: getMatchStage(matchData.date, matchData.columnIndex, datePositions) !== 'GROUP_STAGE'
+              isPlayoff: stage !== 'GROUP_STAGE',
+              matchNumber: matchData.matchNumber
             }
           })
           result.matchesCreated++
