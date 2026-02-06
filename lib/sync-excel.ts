@@ -105,10 +105,8 @@ function getTeamName(code: string): string {
   return teamNames[code] || code
 }
 
-// Generate a temporary password for new users
-function generateTempPassword(): string {
-  return Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
-}
+// Default initial password for imported users
+const DEFAULT_INITIAL_PASSWORD = '123456'
 
 // Extract user name from Excel row
 function extractUserName(row: any[]): string {
@@ -369,9 +367,8 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
         let user = await prisma.user.findUnique({ where: { email: trimmedEmail } })
 
         if (!user) {
-          // Create new user with temporary password
-          const tempPassword = generateTempPassword()
-          const hashedPassword = await bcrypt.hash(tempPassword, 10)
+          // Create new user with default initial password (123456)
+          const hashedPassword = await bcrypt.hash(DEFAULT_INITIAL_PASSWORD, 10)
 
           user = await prisma.user.create({
             data: {
@@ -379,11 +376,11 @@ export async function syncExcelData(buffer: ArrayBuffer): Promise<SyncResult> {
               name: extractUserName(jsonData[row]),
               country: extractUserCountry(jsonData[row]),
               passwordHash: hashedPassword,
+              emailVerified: new Date(),
               role: 'USER'
             }
           })
           result.usersCreated++
-          result.errors?.push(`Created user ${trimmedEmail} with temporary password: ${tempPassword}`)
         } else {
           // Update existing user's name/country if changed
           const newName = extractUserName(jsonData[row])

@@ -16,7 +16,8 @@
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "shadcn:add": "shadcn-ui@latest add",
-    "sync:excel": "tsx scripts/sync-from-excel.ts"
+    "sync:excel": "tsx scripts/sync-from-excel.ts",
+    "reset:passwords": "tsx scripts/reset-all-passwords.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
