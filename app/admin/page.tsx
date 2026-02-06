@@ -12,6 +12,7 @@ import { recalculateRankingsAction, updateRules, createMatch } from '@/app/actio
 import { AdminMatchesList } from '@/components/AdminMatchesList'
 import { AdminUsersList } from '@/components/AdminUsersList'
 import { DeleteUserButton } from '@/components/DeleteUserButton'
+import { ResetPasswordsButton } from '@/components/ResetPasswordsButton'
 
 export default async function AdminPage() {
   const session = await safeAuth()
@@ -105,12 +106,15 @@ export default async function AdminPage() {
                 Manage matches, update scores, and configure rules
               </p>
             </div>
-            <form action={recalculateRankingsAction}>
-              <Button type="submit" size="lg" className="gap-2">
-                <RefreshCw className="h-5 w-5" />
-                Recalculate Rankings
-              </Button>
-            </form>
+            <div className="flex items-center gap-3">
+              <ResetPasswordsButton />
+              <form action={recalculateRankingsAction}>
+                <Button type="submit" size="lg" className="gap-2">
+                  <RefreshCw className="h-5 w-5" />
+                  Recalculate Rankings
+                </Button>
+              </form>
+            </div>
           </div>
 
           {/* Stats */}

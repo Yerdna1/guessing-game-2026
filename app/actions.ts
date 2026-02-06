@@ -1,6 +1,7 @@
 'use server'
 
 import { signIn, signOut } from '@/lib/auth'
+import { AuthError } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
@@ -18,10 +19,11 @@ export async function signInWithCredentials(formData: FormData) {
   try {
     await signIn('credentials', { email, password, redirectTo: '/dashboard' })
   } catch (error) {
-    // Handle NextAuth errors and redirect appropriately
-    if (error instanceof Error) {
-      console.error('Sign in error:', error.message)
+    // AuthError means wrong credentials or unverified email - redirect to login with message
+    if (error instanceof AuthError) {
+      redirect('/login?error=InvalidCredentials')
     }
+    // Re-throw everything else (including NEXT_REDIRECT which is expected on success)
     throw error
   }
 }

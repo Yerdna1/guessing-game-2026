@@ -16,7 +16,7 @@ export async function POST() {
     const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10)
 
     const users = await prisma.user.findMany({
-      select: { id: true, email: true, name: true, emailVerified: true }
+      select: { id: true, email: true, name: true, emailVerified: true, role: true }
     })
 
     let updated = 0
@@ -37,7 +37,7 @@ export async function POST() {
       })
 
       updated++
-      details.push(`${user.name || '(no name)'} <${user.email}>${!user.emailVerified ? ' [verified]' : ''}`)
+      details.push(`${user.name || '(no name)'} <${user.email}> [${user.role}]${!user.emailVerified ? ' [verified]' : ''}`)
     }
 
     return NextResponse.json({

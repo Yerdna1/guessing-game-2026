@@ -18,7 +18,8 @@
       "Bash(npx shadcn@latest init:*)",
       "Bash(npx tsc:*)",
       "Bash(npx next lint:*)",
-      "Bash(npx tsx scripts/reset-all-passwords.ts)"
+      "Bash(npx tsx scripts/reset-all-passwords.ts)",
+      "Bash(npx next build:*)"
     ]
   }
 }
